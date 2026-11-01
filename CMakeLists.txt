@@ -8,3 +8,11 @@ target_sources(gbemu
 PUBLIC 
     src/main.cpp
 )
+
+
+
+
+
+find_package(GTest REQUIRED)
+add_executable(test test/cpu.cpp)
+target_link_libraries(test GTest::gtest GTest::gtest_main)
