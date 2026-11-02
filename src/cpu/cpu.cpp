@@ -2,6 +2,8 @@
 
 #include "cpu/cpu.h"
 
+#include "bus/controll.h"
+#include "cpu/cu.h"
 #include "cpu/rf.h"
 #include "cpu/alu.h"
 #include "cpu/idu.h"
@@ -14,11 +16,10 @@
 
 
 
-void Cpu::Bus::Data::clock() {
 
-}
+
 void Cpu::Bus::Addr::clock() {
-
+    //written_this_clock = false;
 }
 
 
@@ -31,9 +32,11 @@ Cpu::Cpu::Cpu() {
     pRF = new RegisterFile();
     pDBus = new Bus::Data();
     pABus = new Bus::Addr();
+    pCBus = new Bus::Ctrl();
 
     pALU = new ALU(pDBus);
     pIDU = new IDU(pRF);
+    pCU  = new ControllUnit(pRF, pABus, pDBus, pCBus);
 }
 
 Cpu::Cpu::~Cpu() {
@@ -42,6 +45,7 @@ Cpu::Cpu::~Cpu() {
 
     delete(pABus);
     delete(pDBus);
+    delete(pCBus);
     delete(pRF);
 }
 

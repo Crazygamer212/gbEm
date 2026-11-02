@@ -2,6 +2,8 @@
 
 #include <sys/types.h>
 
+#include "bus/controll.h"
+#include "cpu/cu.h"
 #include "cpu/rf.h"
 #include "cpu/alu.h"
 #include "cpu/idu.h"
@@ -16,14 +18,16 @@ namespace Cpu {
         RegisterFile* pRF;
         Bus::Data* pDBus;
         Bus::Addr* pABus;
+        Bus::Ctrl* pCBus;
 
         ALU* pALU;
         IDU* pIDU;
+        ControllUnit* pCU;
 
         int timer;
 
     public:
-        Cpu(/*SoC DBus, SoC ABus*/);
+        Cpu(/*SoC DBus, SoC ABus, Soc CBus*/);
         ~Cpu();
         
         void clock();

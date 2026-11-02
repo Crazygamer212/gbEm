@@ -46,6 +46,7 @@ target_sources(busses
 PRIVATE
     src/bus/address.cpp
     src/bus/data.cpp
+    src/bus/controll.cpp
 PUBLIC
     FILE_SET busses
     TYPE HEADERS
@@ -54,6 +55,7 @@ PUBLIC
     FILES 
     include/bus/address.h
     include/bus/data.h
+    include/bus/controll.h
 )
 
 target_link_libraries(cpu 
