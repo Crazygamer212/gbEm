@@ -1,5 +1,7 @@
 #pragma once
 
+#include "bus/data.h"
+
 namespace Cpu {
     class ALU {
         Bus::Data* pDBus;

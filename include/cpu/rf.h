@@ -1,6 +1,10 @@
 #pragma once
 
+#include <cstdlib>
 #include <sys/types.h>
+
+
+
 
 namespace Cpu {
     struct RegisterFile {
@@ -38,5 +42,7 @@ namespace Cpu {
         u_int8_t IE;
 
         void clock(); // NOT USED
+
+        u_int8_t* addr8bmap(int num);
     };
 }

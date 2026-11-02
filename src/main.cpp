@@ -1,9 +1,12 @@
 
-
+#include "cpu/cpu.h"
 
 
 
 
 int main() {
-    return 0;
+    Cpu::Cpu cpu;
+    while (true) {
+        cpu.clock();
+    }
 }

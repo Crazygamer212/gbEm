@@ -1,6 +1,13 @@
-#include "cpu/cpu.h" 
+#include <sys/types.h>
 
+#include "cpu/cpu.h"
 
+#include "cpu/rf.h"
+#include "cpu/alu.h"
+#include "cpu/idu.h"
+
+#include "bus/data.h"
+#include "bus/address.h"
 
 
 
@@ -26,7 +33,7 @@ Cpu::Cpu::Cpu() {
     pABus = new Bus::Addr();
 
     pALU = new ALU(pDBus);
-    pIDU = new IDU();
+    pIDU = new IDU(pRF);
 }
 
 Cpu::Cpu::~Cpu() {

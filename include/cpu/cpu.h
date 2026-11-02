@@ -1,19 +1,16 @@
 #pragma once
 
+#include <sys/types.h>
+
+#include "cpu/rf.h"
+#include "cpu/alu.h"
+#include "cpu/idu.h"
+
+#include "bus/data.h"
+#include "bus/address.h"
 
 
 namespace Cpu {
-    namespace Bus {
-        struct Data { // 8-bit bi
-            u_int8_t data = 0;
-            void clock();
-        };
-        struct Addr { // 16-bit address - piped to idu? + out
-            u_int16_t data = 0;
-            void clock();
-        };
-    }
-
 
     class Cpu {
         RegisterFile* pRF;
@@ -32,6 +29,5 @@ namespace Cpu {
         void clock();
         void iclock();
     };
-
 
 }

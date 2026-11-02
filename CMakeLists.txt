@@ -47,7 +47,7 @@ PRIVATE
     src/bus/address.cpp
     src/bus/data.cpp
 PUBLIC
-    FILE_SET buses
+    FILE_SET busses
     TYPE HEADERS
     BASE_DIRS
         include
@@ -58,7 +58,7 @@ PUBLIC
 
 target_link_libraries(cpu 
 PRIVATE 
-    buses
+    busses
 )
 
 target_link_libraries(gbemu 
