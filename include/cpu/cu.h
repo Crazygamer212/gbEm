@@ -4,15 +4,17 @@
 #include <sys/types.h>
 
 
-#include "bus/controll.h"
 #include "cpu/alu.h"
 #include "cpu/idu.h"
+#include "cpu/rf.h"
+
 #include "bus/address.h"
 #include "bus/data.h"
+#include "bus/controll.h"
 
 namespace Cpu {
     class ControllUnit {
-        //RegisterFile* pRF;
+        RegisterFile* pRF;
         Bus::Addr *pABus;
         Bus::Data *pDBus;
         Bus::Ctrl *pCBus;
@@ -23,7 +25,7 @@ namespace Cpu {
         int Mc{1};
 
     public:
-        ControllUnit(/*RegisterFile* pRF ,*/ Bus::Addr *pABus, Bus::Data *pDBus, Bus::Ctrl *pCBus, 
+        ControllUnit(RegisterFile* pRF , Bus::Addr *pABus, Bus::Data *pDBus, Bus::Ctrl *pCBus, 
             ALU *pALU, IDU *pIDU);
         ~ControllUnit();
         void clock();

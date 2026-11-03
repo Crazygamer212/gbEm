@@ -34,9 +34,9 @@ Cpu::Cpu::Cpu() {
     pABus = new Bus::Addr();
     pCBus = new Bus::Ctrl();
 
-    pALU = new ALU(pDBus);
-    pIDU = new IDU(pRF);
-    pCU  = new ControllUnit(pABus, pDBus, pCBus, pALU, pIDU);
+    pALU = new ALU(pDBus, pRF);
+    pIDU = new IDU(pRF, pABus);
+    pCU  = new ControllUnit(pRF, pABus, pDBus, pCBus, pALU, pIDU);
 }
 
 Cpu::Cpu::~Cpu() {
@@ -63,4 +63,6 @@ void Cpu::Cpu::iclock() {
     pABus->clock();
     pIDU->clock();
     pALU->clock();
+
+    pCU->clock(); // the only thing that does
 }

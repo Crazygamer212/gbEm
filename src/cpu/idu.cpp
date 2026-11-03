@@ -1,7 +1,7 @@
 #include "cpu/idu.h"
 
 
-Cpu::IDU::IDU(RegisterFile* pRegisterFile) : pRF(pRegisterFile) {
+Cpu::IDU::IDU(RegisterFile* pRegisterFile, Bus::Addr* pABus) : pRF(pRegisterFile), pABus(pABus) {
 
 }
 
