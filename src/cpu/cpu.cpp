@@ -36,7 +36,7 @@ Cpu::Cpu::Cpu() {
 
     pALU = new ALU(pDBus);
     pIDU = new IDU(pRF);
-    pCU  = new ControllUnit(pRF, pABus, pDBus, pCBus);
+    pCU  = new ControllUnit(pABus, pDBus, pCBus, pALU, pIDU);
 }
 
 Cpu::Cpu::~Cpu() {

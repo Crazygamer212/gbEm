@@ -7,8 +7,7 @@
 
 namespace Cpu {
     namespace Bus {
-        struct Data { // 8-bit bi
-        private:
+        class Data { // 8-bit bi
             u_int8_t data{0};
             bool written_this_clock{false};
         public:
