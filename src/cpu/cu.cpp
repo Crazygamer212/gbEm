@@ -1,5 +1,6 @@
 #include "cpu/cu.h"
 
+#include <cstddef>
 #include <stdexcept>
 #include <sys/types.h>
 
@@ -28,48 +29,54 @@ Cpu::ControllUnit::~ControllUnit() {
 void Cpu::ControllUnit::clock() {
 
     if (this->Mc == 1) {
-        pRF->IR = /*DATA bus value*/this->pDBus->read(); // 
+        pRF->IR = this->pDBus->read();
     }
 
     //decode + exec (1 cycle)
     int opcode = pRF->IR;
+
+    //Op trg, src     E.g.  LD B, C  :  LD 000, 001  :  01_000_001  :  B = C
+    int src = (opcode & 0b00000111);
+    int trg = (opcode & 0b00111000) >> 3;
+
+    u_int8_t* regT = pRF->addr8bmap(trg);
+    u_int8_t* regS = pRF->addr8bmap(src);
     switch (opcode & 0xC0) { // 2 MSB
-        case 0x40: { //0b01_xxx_yyy  2[1] cycles  -  LD x<y
-            //this->Mc++; // not needed but implied 
+        case 0x40: { //0b01_trg_src  LD
             switch (this->Mc) {
-            case 1: {
-                if ((opcode & 0b00000111) == 0b110) { // LD (HL), r M1
-                    pCBus->setState(Bus::State::write);
-                    pABus->write(pRF->HL);
-                    pDBus->write(*pRF->addr8bmap(opcode & 0b00111000));
-                    this->Mc++;
-                } else {
-                    pALU->move((opcode & 0b00000111), (opcode & 0b00111000) >> 3); //!CHECK
-                    this->Mc = 1;
+                case 1: {
+                    if (regT == nullptr && nullptr == regS) {
+                        throw std::runtime_error("HALT");
+                    } else if (regT == nullptr) {
+                        // Mem[HL] = regS;
+                        pABus->write(pRF->HL);
+                        pCBus->setState(Bus::State::write);
+                        pDBus->write(*regS);
+                        this->Mc++;
+                    } else if (regS == nullptr) {
+                        // regT = Mem[HL];
+                        pABus->write(pRF->HL);
+                        pCBus->setState(Bus::State::read);
+                        this->Mc++;
+                    } else {
+                        *regT = *regS;
+                        this->Mc = 1;
+                    }
+                    break;
                 }
-                break;
-            } case 2: { //0b00_xxx_110 opcode after write to mem[HL]
-                this->Mc = 1;
-                break;
-            }
-            }
-            break;
+                case 2: {
+                    if (regS == nullptr) {
+                        *regT = pDBus->read();
+                        this->Mc = 1;
+                    } else if (regT == nullptr) {
+                        this->Mc = 1;// burn a clock to write to memory
+                    }
+                }
+            }; 
+            break;// opcode break
         }
-        case 0x00: { //0b00_xxx_110(HL)  4[3] cycles
-            switch (this->Mc) {
-            case 1: { // First clock - fetch register and set up bus
-                //u_int8_t &to   = *pRF->addr8bmap((opcode & 0b00111000) >> 3);
-                //u_int16_t &addr = pRF->HL;
-                if ((opcode & 0b00000111) != 0b110) { throw std::runtime_error("Unimplemented opcode 0b01_xxx_??? (01) "); }
-                pABus->write(/*PC*/ pRF->PC);
-                ++this->Mc;
-                break;
-            } case 2: { // LD r, (HL)
-                pALU->move(pDBus->read(), (opcode & 0b00111000) >> 3);
-                this->Mc = 1;
-            }
-            }
-            break;
+        case 0x80: { //0b10_xxx_xxx  ALU
+
         }
         default: {
             throw std::runtime_error("Unimplemented");
@@ -78,8 +85,6 @@ void Cpu::ControllUnit::clock() {
 
     if (this->Mc == 1) {
         // Set pRF->IR to fetch_ram(PC) - done at start of next clock
-        pRF->PC++;//pIDU->inc(/*PC*/); //cba
-        pABus->write(pRF->PC);
-        pCBus->setState(Bus::State::read);
+        pIDU->nextPC(); // continue next clock
     }
 }

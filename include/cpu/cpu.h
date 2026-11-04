@@ -13,6 +13,9 @@
 
 
 namespace Cpu {
+    namespace Bus {
+        void clockAll();
+    }
 
     class Cpu {
         RegisterFile* pRF;

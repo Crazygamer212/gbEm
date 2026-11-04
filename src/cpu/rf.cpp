@@ -17,7 +17,7 @@ u_int8_t* Cpu::RegisterFile::addr8bmap(int num) {
         case 0b011: return &(this->E);
         case 0b100: return &(this->H);
         case 0b101: return &(this->L);
-        case 0b110: throw std::runtime_error("Unimplemented register HL"); return nullptr; // (HL) is memory, not a register
+        case 0b110: return nullptr; // (HL) is memory, not a register
         case 0b111: return &(this->A);
     }
     return nullptr;

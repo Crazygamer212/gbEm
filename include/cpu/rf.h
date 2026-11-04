@@ -41,6 +41,9 @@ namespace Cpu {
         u_int8_t IR;
         u_int8_t IE;
 
+        u_int8_t Z; //TEMP
+        
+
         void clock(); // NOT USED
 
         u_int8_t* addr8bmap(int num);

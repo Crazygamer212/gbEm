@@ -11,6 +11,6 @@ namespace Cpu {
         ALU(Bus::Data* pDBus, RegisterFile* pRF);
         ~ALU();
         void clock();
-        void move(int r1, int r2);
+        void move(int to, int from);
     };
 }

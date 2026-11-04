@@ -18,14 +18,6 @@
 
 
 
-void Cpu::Bus::Addr::clock() {
-    //written_this_clock = false;
-}
-
-
-
-
-
 
 // ------ CPU ------
 Cpu::Cpu::Cpu() {
@@ -35,11 +27,12 @@ Cpu::Cpu::Cpu() {
     pCBus = new Bus::Ctrl();
 
     pALU = new ALU(pDBus, pRF);
-    pIDU = new IDU(pRF, pABus);
+    pIDU = new IDU(pRF, pABus, pCBus);
     pCU  = new ControllUnit(pRF, pABus, pDBus, pCBus, pALU, pIDU);
 }
 
 Cpu::Cpu::~Cpu() {
+    delete(pCU);
     delete(pALU);
     delete(pIDU);
 

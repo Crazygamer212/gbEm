@@ -16,7 +16,7 @@ void Cpu::ALU::clock() {
 
 }
 
-void Cpu::ALU::move(int from, int to) {
+void Cpu::ALU::move(int to, int from) {
     u_int8_t &v = *pRF->addr8bmap(to);
     v = *pRF->addr8bmap(from);
 }
