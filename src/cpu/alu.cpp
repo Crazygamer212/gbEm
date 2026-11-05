@@ -13,10 +13,60 @@ Cpu::ALU::~ALU() {
 }
 
 void Cpu::ALU::clock() {
-
+//NI - requires T-cycles
 }
 
 void Cpu::ALU::move(int to, int from) {
     u_int8_t &v = *pRF->addr8bmap(to);
     v = *pRF->addr8bmap(from);
 }
+
+#define operation(name,code)  \
+    void Cpu::ALU::name##V(u_int8_t v) { code } \
+    void Cpu::ALU::name##R(int r) { name##V(*pRF->addr8bmap(r)); } \
+
+
+operation(add, 
+pRF->A += v;
+pRF->F = /*flag set*/0;
+)
+
+operation(adc, 
+pRF->A += v /* + carry bit*/;
+pRF->F = /*flag set*/0;
+)
+
+operation(sub, 
+pRF->A -= v;
+pRF->F = /*flag set*/0;
+)
+
+operation(sbc, 
+pRF->A -= v /* + carry bit*/;
+pRF->F = /*flag set*/0;
+)
+
+operation(cp, 
+u_int8_t Z = pRF->A - v /* + carry bit*/;
+pRF->F = /*flag set*/0;
+)
+
+//INC
+//DEC
+
+operation(and, 
+pRF->A = pRF->A & v;
+pRF->F = /*flag set*/0;
+)
+
+operation(or, 
+pRF->A = pRF->A | v;
+pRF->F = /*flag set*/0;
+)
+
+operation(xor, 
+pRF->A = pRF->A ^ v;
+pRF->F = /*flag set*/0;
+)
+
+

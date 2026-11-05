@@ -75,6 +75,8 @@ add_executable(test)
 target_sources(test 
 PRIVATE
     test/cpu.cpp
+    test/cpu_0x40-0x7f.cpp
+    test/cpu_0x80-0xbf.cpp
 )
 target_link_libraries(test GTest::gtest GTest::gtest_main
     cpu
