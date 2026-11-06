@@ -33,7 +33,7 @@ void Cpu::ControllUnit::clock() {
     }
 
     //decode + exec (1 cycle)
-    int opcode = pRF->IR;
+    const int opcode = pRF->IR;
 
     //Op trg, src     E.g.  LD B, C  :  LD 000, 001  :  01_000_001  :  B = C
     int src = (opcode & 0b00000111);

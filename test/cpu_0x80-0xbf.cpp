@@ -12,7 +12,7 @@
 #include "bus/address.h"
 
 //TODO sloppy tests - should define and check all RF.
-
+//TODO check tests + code -_-
 
 
 class CPUTest : public ::testing::Test {
@@ -85,7 +85,6 @@ TEST_F(CPUTest, ADD_A2r_normal) {
 
     RF.HL=0x3177;
     RF.A=0x3A;
-    RF.A=0b00001111;
 
     RF.SP=0x1000;
     RF.PC=1;
@@ -105,7 +104,7 @@ TEST_F(CPUTest, ADD_A2r_normal) {
 
                             // 0b____chnz   -- half carry ( 0x0f+0x01 would trigger due to carry at bit 4)
     EXPECT_EQ(RF.F & 0b00001111, 0b00000000);
-    EXPECT_EQ(RF.A, 0x5B);
+    EXPECT_EQ(RF.A, 0x5b);
 
 
 }
@@ -118,11 +117,13 @@ TEST_F(CPUTest, ADC_A2r) {
 
     RF.B=0x65;
     RF.C=0x0A;
-    RF.D=0x23;
+    RF.D=0x50;
     RF.E=0x68;
 
     RF.HL=0x3137;
-    RF.A=0x3A;
+    RF.A=0x3f;
+
+    RF.setC(1);
 
     RF.SP=0x1000;
     RF.PC=1;
@@ -131,7 +132,7 @@ TEST_F(CPUTest, ADC_A2r) {
 
     ///EXPECT_EQ(CBus.getState(),Cpu::Bus::State::read);
     //EXPECT_EQ(ABus.read(), 0x0000);
-    DBus.write(0x80);// ADD B[, A] -- A is implied 
+    DBus.write(0x8A);// ADD D[, A] -- A is implied 
     DBus.clock(); // should overflow to 0x00
     ABus.clock();
     CBus.clock();
@@ -141,8 +142,8 @@ TEST_F(CPUTest, ADC_A2r) {
     EXPECT_EQ(ABus.read(), 0x0001);
 
                             // 0b____chnz   -- half carry ( 0x0f+0x01 would trigger due to carry at bit 4)
-    EXPECT_EQ(RF.F & 0b00001111, 0b00000000);
-    EXPECT_EQ(RF.A, 0x5B);
+    EXPECT_EQ(RF.F & 0b00001111, 0b00000100);
+    EXPECT_EQ(RF.A, 0x90);
 
 
 }
