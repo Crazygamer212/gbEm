@@ -71,12 +71,100 @@ void Cpu::ControllUnit::clock() {
                     } else if (regT == nullptr) {
                         this->Mc = 1;// burn a clock to write to memory
                     }
+                    break;
                 }
             }; 
             break;// opcode break
         }
         case 0x80: { //0b10_xxx_xxx  ALU
+            switch (this->Mc) {
+                case 1: {
+                    if (regS == nullptr) {
+                        this->Mc++;
+                        pABus->write(pRF->HL);
+                        pCBus->setState(Bus::State::read);
+                        break;
+                    }
+                    switch (trg) { // trg is operation type for 0b10 ___ 110
+                        case 0b000: { // ADD
+                            pALU->addV(*regS);
+                            break;
+                        }
+                        case 0b001: { // ADC 
+                            pALU->adcV(*regS);
+                            break;
+                        }
+                        case 0b010: { // SUB
+                            pALU->subV(*regS);
+                            break;
+                        }
+                        case 0b011: { // SBC
+                            pALU->sbcV(*regS);
+                            break;
+                        }
 
+                        case 0b100: { // AND
+                            pALU->andV(*regS);
+                            break;
+                        }
+                        case 0b101: { // XOR
+                            pALU->xorV(*regS);
+                            break;
+                        }
+                        case 0b110: { // OR
+                            pALU->orV(*regS);
+                            break;
+                        }
+                        case 0b111: { // CP
+                            pALU->cpV(*regS);
+                            break;
+                        }
+                    }
+                    this->Mc=1;
+                    break;
+                }
+                case 2: {
+                    u_int8_t tempData = pDBus->read();
+                    switch (trg) { // trg is operation type for 0b10 ___ 110
+                        case 0b000: { // ADD
+                            pALU->addV(tempData);
+                            break;
+                        }
+                        case 0b001: { // ADC 
+                            pALU->adcV(tempData);
+                            break;
+                        }
+                        case 0b010: { // SUB
+                            pALU->subV(tempData);
+                            break;
+                        }
+                        case 0b011: { // SBC
+                            pALU->sbcV(tempData);
+                            break;
+                        }
+
+                        case 0b100: { // AND
+                            pALU->andV(tempData);
+                            break;
+                        }
+                        case 0b101: { // XOR
+                            pALU->xorV(tempData);
+                            break;
+                        }
+                        case 0b110: { // OR
+                            pALU->orV(tempData);
+                            break;
+                        }
+                        case 0b111: { // CP
+                            pALU->cpV(tempData);
+                            break;
+                        }
+                    }
+                    this->Mc=1;
+                    break;
+                }
+            }
+            break;
         }
         default: {
             throw std::runtime_error("Unimplemented");

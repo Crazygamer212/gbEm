@@ -14,154 +14,136 @@
 //TODO sloppy tests - should define and check all RF.
 
 
-TEST(CPU, ADD_A2r_oveflow_zero) {
-    Cpu::RegisterFile *pRF = new Cpu::RegisterFile();
-    Cpu::Bus::Data *pDBus = new Cpu::Bus::Data();
-    Cpu::Bus::Addr *pABus = new Cpu::Bus::Addr();
-    Cpu::Bus::Ctrl *pCBus = new Cpu::Bus::Ctrl();
 
-    Cpu::ALU *pALU = new Cpu::ALU(pDBus, pRF);
-    Cpu::IDU *pIDU = new Cpu::IDU(pRF, pABus, pCBus);
-    Cpu::ControllUnit *pCU  = new Cpu::ControllUnit(pRF, pABus, pDBus, pCBus, pALU, pIDU);
+class CPUTest : public ::testing::Test {
+protected:
+    Cpu::RegisterFile RF;
+    Cpu::Bus::Data DBus;
+    Cpu::Bus::Addr ABus;
+    Cpu::Bus::Ctrl CBus;
 
-    pRF->B=0x05;
-    pRF->C=0x0A;
-    pRF->D=0x23;
-    pRF->E=0x68;
+    Cpu::ALU ALU{&DBus, &RF};
+    Cpu::IDU IDU{&RF, &ABus, &CBus};
 
-    pRF->HL=0x3137;
-    pRF->A=0x98;
+    Cpu::ControllUnit CU{
+        &RF, &ABus, &DBus, &CBus, &ALU, &IDU
+    };
 
-    pRF->SP=0x1000;
-    pRF->PC=1;
+    void SetUp() override {
+        RF.B=0x05;
+        RF.C=0x0A;
+        RF.D=0x23;
+        RF.E=0x68;
+
+        RF.HL=0x3137;
+        RF.A=0x98;
+
+        RF.SP=0x1000;
+        RF.PC=1;
+    }
+};
+
+
+TEST_F(CPUTest, ADD_A2r_oveflow_zero) {
+
+    RF.B=0x05;
+    RF.C=0x0A;
+    RF.D=0x23;
+    RF.E=0x68;
+
+    RF.HL=0x3137;
+    RF.A=0x98;
+
+    RF.SP=0x1000;
+    RF.PC=1;
 
     //------SETUP-DONE-------
 
-    ///EXPECT_EQ(pCBus->getState(),Cpu::Bus::State::read);
-    //EXPECT_EQ(pABus->read(), 0x0000);
-    pDBus->write(0x83);// ADD E[, A] -- A is implied 
-    pDBus->clock(); // should overflow to 0x00
-    pABus->clock();
-    pCBus->clock();
-    pCU->clock();
+    ///EXPECT_EQ(CBus.getState(),Cpu::Bus::State::read);
+    //EXPECT_EQ(ABus.read(), 0x0000);
+    DBus.write(0x83);// ADD E[, A] -- A is implied 
+    DBus.clock(); // should overflow to 0x00
+    ABus.clock();
+    CBus.clock();
+    CU.clock();
 
-    EXPECT_EQ(pCBus->getState(),Cpu::Bus::State::read);
-    EXPECT_EQ(pABus->read(), 0x0001);
+    EXPECT_EQ(CBus.getState(),Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x0001);
 
                             // 0b____chnz   -- half carry ( 0x0f+0x01 would trigger due to carry at bit 4)
-    EXPECT_EQ(pRF->F & 0b00001111, 0b00001101);
-    EXPECT_EQ(pRF->A, 0x00);
+    EXPECT_EQ(RF.F & 0b00001111, 0b00001101);
+    EXPECT_EQ(RF.A, 0x00);
 
-
-    delete(pCU);
-    delete(pALU);
-    delete(pIDU);
-
-    delete(pABus);
-    delete(pDBus);
-    delete(pCBus);
-    delete(pRF);
 }
 
-TEST(CPU, ADD_A2r_normal) {
-    Cpu::RegisterFile *pRF = new Cpu::RegisterFile();
-    Cpu::Bus::Data *pDBus = new Cpu::Bus::Data();
-    Cpu::Bus::Addr *pABus = new Cpu::Bus::Addr();
-    Cpu::Bus::Ctrl *pCBus = new Cpu::Bus::Ctrl();
+TEST_F(CPUTest, ADD_A2r_normal) {
 
-    Cpu::ALU *pALU = new Cpu::ALU(pDBus, pRF);
-    Cpu::IDU *pIDU = new Cpu::IDU(pRF, pABus, pCBus);
-    Cpu::ControllUnit *pCU  = new Cpu::ControllUnit(pRF, pABus, pDBus, pCBus, pALU, pIDU);
+    RF.B=0x21;
+    RF.C=0x2A;
+    RF.D=0x23;
+    RF.E=0x69;
 
-    pRF->B=0x21;
-    pRF->C=0x2A;
-    pRF->D=0x23;
-    pRF->E=0x69;
+    RF.HL=0x3177;
+    RF.A=0x3A;
+    RF.A=0b00001111;
 
-    pRF->HL=0x3177;
-    pRF->A=0x3A;
-
-    pRF->SP=0x1000;
-    pRF->PC=1;
+    RF.SP=0x1000;
+    RF.PC=1;
 
     //------SETUP-DONE-------
 
-    ///EXPECT_EQ(pCBus->getState(),Cpu::Bus::State::read);
-    //EXPECT_EQ(pABus->read(), 0x0000);
-    pDBus->write(0x80);// ADD B[, A] -- A is implied 
-    pDBus->clock(); // should overflow to 0x00
-    pABus->clock();
-    pCBus->clock();
-    pCU->clock();
+    ///EXPECT_EQ(CBus.getState(),Cpu::Bus::State::read);
+    //EXPECT_EQ(ABus.read(), 0x0000);
+    DBus.write(0x80);// ADD B[, A] -- A is implied 
+    DBus.clock(); // should overflow to 0x00
+    ABus.clock();
+    CBus.clock();
+    CU.clock();
 
-    EXPECT_EQ(pCBus->getState(),Cpu::Bus::State::read);
-    EXPECT_EQ(pABus->read(), 0x0001);
+    EXPECT_EQ(CBus.getState(),Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x0001);
 
                             // 0b____chnz   -- half carry ( 0x0f+0x01 would trigger due to carry at bit 4)
-    EXPECT_EQ(pRF->F & 0b00001111, 0b00000000);
-    EXPECT_EQ(pRF->A, 0x5B);
+    EXPECT_EQ(RF.F & 0b00001111, 0b00000000);
+    EXPECT_EQ(RF.A, 0x5B);
 
 
-    delete(pCU);
-    delete(pALU);
-    delete(pIDU);
-
-    delete(pABus);
-    delete(pDBus);
-    delete(pCBus);
-    delete(pRF);
 }
 
 
 
 
 
-TEST(CPU, ADC_A2r) {
-    Cpu::RegisterFile *pRF = new Cpu::RegisterFile();
-    Cpu::Bus::Data *pDBus = new Cpu::Bus::Data();
-    Cpu::Bus::Addr *pABus = new Cpu::Bus::Addr();
-    Cpu::Bus::Ctrl *pCBus = new Cpu::Bus::Ctrl();
+TEST_F(CPUTest, ADC_A2r) {
 
-    Cpu::ALU *pALU = new Cpu::ALU(pDBus, pRF);
-    Cpu::IDU *pIDU = new Cpu::IDU(pRF, pABus, pCBus);
-    Cpu::ControllUnit *pCU  = new Cpu::ControllUnit(pRF, pABus, pDBus, pCBus, pALU, pIDU);
+    RF.B=0x65;
+    RF.C=0x0A;
+    RF.D=0x23;
+    RF.E=0x68;
 
-    pRF->B=0x65;
-    pRF->C=0x0A;
-    pRF->D=0x23;
-    pRF->E=0x68;
+    RF.HL=0x3137;
+    RF.A=0x3A;
 
-    pRF->HL=0x3137;
-    pRF->A=0x3A;
-
-    pRF->SP=0x1000;
-    pRF->PC=1;
+    RF.SP=0x1000;
+    RF.PC=1;
 
     //------SETUP-DONE-------
 
-    ///EXPECT_EQ(pCBus->getState(),Cpu::Bus::State::read);
-    //EXPECT_EQ(pABus->read(), 0x0000);
-    pDBus->write(0x80);// ADD B[, A] -- A is implied 
-    pDBus->clock(); // should overflow to 0x00
-    pABus->clock();
-    pCBus->clock();
-    pCU->clock();
+    ///EXPECT_EQ(CBus.getState(),Cpu::Bus::State::read);
+    //EXPECT_EQ(ABus.read(), 0x0000);
+    DBus.write(0x80);// ADD B[, A] -- A is implied 
+    DBus.clock(); // should overflow to 0x00
+    ABus.clock();
+    CBus.clock();
+    CU.clock();
 
-    EXPECT_EQ(pCBus->getState(),Cpu::Bus::State::read);
-    EXPECT_EQ(pABus->read(), 0x0001);
+    EXPECT_EQ(CBus.getState(),Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x0001);
 
                             // 0b____chnz   -- half carry ( 0x0f+0x01 would trigger due to carry at bit 4)
-    EXPECT_EQ(pRF->F & 0b00001111, 0b00000000);
-    EXPECT_EQ(pRF->A, 0x5B);
+    EXPECT_EQ(RF.F & 0b00001111, 0b00000000);
+    EXPECT_EQ(RF.A, 0x5B);
 
 
-    delete(pCU);
-    delete(pALU);
-    delete(pIDU);
-
-    delete(pABus);
-    delete(pDBus);
-    delete(pCBus);
-    delete(pRF);
 }
 

@@ -47,5 +47,15 @@ namespace Cpu {
         void clock(); // NOT USED
 
         u_int8_t* addr8bmap(int num);
+
+        void setZ(bool status);
+        void setN(bool status);
+        void setH(bool status);
+        void setC(bool status);
+        
+        u_int8_t getZ();
+        u_int8_t getN();
+        u_int8_t getH();
+        u_int8_t getC();
     };
 }

@@ -1,6 +1,7 @@
 #include "cpu/rf.h"
 
 #include <stdexcept>
+#include <sys/types.h>
 
 
 
@@ -21,4 +22,48 @@ u_int8_t* Cpu::RegisterFile::addr8bmap(int num) {
         case 0b111: return &(this->A);
     }
     return nullptr;
+}
+
+
+
+void Cpu::RegisterFile::setZ(bool status) {
+    if (status) {
+        F |= 0b0001;
+    } else {
+        F &= ~0b0001;
+    }
+}
+void Cpu::RegisterFile::setN(bool status) {
+    if (status) {
+        F |= 0b0010;
+    } else {
+        F &= ~0b0010;
+    }
+}
+void Cpu::RegisterFile::setH(bool status) {
+    if (status) {
+        F |= 0b0100;
+    } else {
+        F &= ~0b0100;
+    }
+}
+void Cpu::RegisterFile::setC(bool status) {
+    if (status) {
+        F |= 0b1000;
+    } else {
+        F &= ~0b1000;
+    }
+}
+
+u_int8_t Cpu::RegisterFile::getZ() {
+    return (F     ) & 0b1;
+}
+u_int8_t Cpu::RegisterFile::getN() {
+    return (F >> 1) & 0b1;
+}
+u_int8_t Cpu::RegisterFile::getH() {
+    return (F >> 2) & 0b1;
+}
+u_int8_t Cpu::RegisterFile::getC() {
+    return (F >> 3) & 0b1;
 }

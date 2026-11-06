@@ -24,10 +24,6 @@ BUS CLK
 
 
 
-TEST(SampleTest, Addition) {
-    EXPECT_EQ(2 + 2, 4);
-}
-
 TEST(CPU, Creation) {
     Cpu::Cpu* pcpu = new Cpu::Cpu();
     delete pcpu;
