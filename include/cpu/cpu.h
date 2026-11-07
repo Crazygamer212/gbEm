@@ -30,7 +30,7 @@ namespace Cpu {
         int timer;
 
     public:
-        Cpu(/*SoC DBus, SoC ABus, Soc CBus*/);
+        Cpu(Bus::Data* pDBus, Bus::Addr* pABus, Bus::Ctrl* pCBus);  /*SoC DBus, SoC ABus, Soc CBus*/
         ~Cpu();
         
         void clock();

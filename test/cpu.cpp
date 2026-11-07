@@ -25,8 +25,11 @@ BUS CLK
 
 
 TEST(CPU, Creation) {
-    Cpu::Cpu* pcpu = new Cpu::Cpu();
-    delete pcpu;
+    Cpu::Bus::Data DBus;
+    Cpu::Bus::Addr ABus;
+    Cpu::Bus::Ctrl CBus;
+
+    Cpu::Cpu cpu(&DBus, &ABus, &CBus);
 }
 
 

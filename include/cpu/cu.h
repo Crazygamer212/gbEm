@@ -28,6 +28,10 @@ namespace Cpu {
         ControllUnit(RegisterFile* pRF , Bus::Addr *pABus, Bus::Data *pDBus, Bus::Ctrl *pCBus, 
             ALU *pALU, IDU *pIDU);
         ~ControllUnit();
+
+        void handle0b00(int trg, int src);
+        void handle0b11(int trg, int src);
+
         void clock();
     };
 }

@@ -166,6 +166,15 @@ void Cpu::ControllUnit::clock() {
             }
             break;
         }
+
+        case 0x00: {
+            this->handle0b00(trg, src);
+            break;
+        }
+        case 0xC0: {
+            this->handle0b11(trg, src);
+            break;
+        }
         default: {
             throw std::runtime_error("Unimplemented");
         }

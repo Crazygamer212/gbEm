@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/gbemu",
-            "args": [],
+            "args": ["/home/dsilich/Code/cpp/gbe/roms/Tetris (World) (Rev 1)/Tetris (World) (Rev 1).gb"],
             //"stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],

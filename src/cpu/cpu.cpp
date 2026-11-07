@@ -20,15 +20,19 @@
 
 
 // ------ CPU ------
-Cpu::Cpu::Cpu() {
+Cpu::Cpu::Cpu(Bus::Data* pDBus, Bus::Addr* pABus, Bus::Ctrl* pCBus) : pDBus(pDBus), pABus(pABus), pCBus(pCBus) {
     pRF = new RegisterFile();
-    pDBus = new Bus::Data();
-    pABus = new Bus::Addr();
-    pCBus = new Bus::Ctrl();
+    //pDBus = new Bus::Data();
+    //pABus = new Bus::Addr();
+    //pCBus = new Bus::Ctrl();
 
-    pALU = new ALU(pDBus, pRF);
-    pIDU = new IDU(pRF, pABus, pCBus);
-    pCU  = new ControllUnit(pRF, pABus, pDBus, pCBus, pALU, pIDU);
+    pALU = new ALU(this->pDBus, pRF);
+    pIDU = new IDU(pRF, this->pABus, this->pCBus);
+    pCU  = new ControllUnit(pRF, this->pABus, this->pDBus, this->pCBus, pALU, pIDU);
+
+    pRF->PC=101;
+    pABus->write(pRF->PC-1);
+    pCBus->setState(Bus::State::read);
 }
 
 Cpu::Cpu::~Cpu() {
@@ -36,9 +40,6 @@ Cpu::Cpu::~Cpu() {
     delete(pALU);
     delete(pIDU);
 
-    delete(pABus);
-    delete(pDBus);
-    delete(pCBus);
     delete(pRF);
 }
 
@@ -52,8 +53,6 @@ void Cpu::Cpu::clock() { // CLK 4MHz
 
 void Cpu::Cpu::iclock() {
     pRF->clock();
-    pDBus->clock();
-    pABus->clock();
     pIDU->clock();
     pALU->clock();
 

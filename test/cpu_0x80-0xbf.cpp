@@ -110,9 +110,6 @@ TEST_F(CPUTest, ADD_A2r_normal) {
 }
 
 
-
-
-
 TEST_F(CPUTest, ADC_A2r) {
 
     RF.B=0x65;
@@ -147,4 +144,6 @@ TEST_F(CPUTest, ADC_A2r) {
 
 
 }
+
+
 

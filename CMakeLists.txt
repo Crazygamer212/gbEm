@@ -15,6 +15,8 @@ target_sources(cpu
 PRIVATE 
     src/cpu/cpu.cpp
     src/cpu/cu.cpp
+    src/cpu/cu_opcodes/opcodes0b00.cpp
+    src/cpu/cu_opcodes/opcodes0b11.cpp
     src/cpu/alu.cpp
     src/cpu/idu.cpp
     src/cpu/rf.cpp
@@ -58,14 +60,37 @@ PUBLIC
     include/bus/controll.h
 )
 
+
+add_library(memory)
+
+target_sources(memory
+PRIVATE 
+    src/memory/memory.cpp
+PUBLIC
+    FILE_SET memory_headers
+    TYPE HEADERS 
+    BASE_DIRS
+        include
+    FILES 
+        include/memory/memory.h
+)
+
+
 target_link_libraries(cpu 
 PRIVATE 
     busses
 )
 
+target_link_libraries(memory 
+PRIVATE 
+    busses
+)
+
+
 target_link_libraries(gbemu 
 PRIVATE 
     cpu
+    memory
 )
 
 
