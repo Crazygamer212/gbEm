@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 4.3)
 
 project(gbemu)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+
+add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
+#target_link_libraries(hello PRIVATE SDL3::SDL3)
+
+
 add_executable(gbemu)
 target_sources(gbemu 
 PRIVATE 
@@ -73,6 +80,25 @@ PUBLIC
         include
     FILES 
         include/memory/memory.h
+)
+
+
+
+add_library(graphics)
+target_sources(graphics 
+PRIVATE 
+    src/graphics/screen.cpp
+PUBLIC 
+    FILE_SET screen_headers
+    TYPE HEADERS 
+    BASE_DIRS
+        include 
+    FILES 
+        include/graphics/screen.h
+)
+target_link_libraries(graphics 
+PRIVATE 
+    SDL3::SDL3    
 )
 
 
