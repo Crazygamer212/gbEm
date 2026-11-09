@@ -74,6 +74,7 @@ namespace Graphics {
 
         int x_size{0};
         int y_size{0};
+        int px_size{0};
         int data[];
     public:
         Screen(int x_size, int y_size);
@@ -81,6 +82,6 @@ namespace Graphics {
         ~Screen();
 
         void drawPX(int x, int y, int c);
-        int tick();
+        int tick(int t);
     };
 }

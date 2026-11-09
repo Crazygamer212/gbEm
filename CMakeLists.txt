@@ -117,6 +117,8 @@ target_link_libraries(gbemu
 PRIVATE 
     cpu
     memory
+
+    graphics
 )
 
 

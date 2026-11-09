@@ -10,6 +10,8 @@
 #include "cpu/cpu.h"
 #include "memory/memory.h"
 
+#include "graphics/screen.h"
+
 
 // clock cycle:
 /*
@@ -20,6 +22,9 @@
 */
 
 int main(int argc, char* argv[]) {
+    Graphics::Screen screen(160,144,6);
+
+
     std::streampos size;
     u_int8_t *pROMData;
 
@@ -47,11 +52,16 @@ int main(int argc, char* argv[]) {
     memory.loadb(pROMData);
     DBus.clock(); ABus.clock(); CBus.clock();
     
+    int v = 0;
     while (true) {
-        cpu.clock();
-        memory.clock();
+        //cpu.clock();
+        //memory.clock();
 
-        DBus.clock(); ABus.clock(); CBus.clock();
+        //DBus.clock(); ABus.clock(); CBus.clock();
+
+
+        int typ = screen.tick(++v);
+        if (typ != 0) { break; }
     }
 
     delete[] pROMData;
