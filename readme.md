@@ -4,6 +4,7 @@ This is a basic gameboy emulator I'm making to learn c++
 
 
 ## TODO
+ - [MBCs](<https://gbdev.io/pandocs/MBCs.html>) 
  - modular debug GUI 
  - graphics
  - finish all opcodes

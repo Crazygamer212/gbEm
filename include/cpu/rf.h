@@ -47,6 +47,7 @@ namespace Cpu {
         void clock(); // NOT USED
 
         u_int8_t* addr8bmap(int num);
+        u_int16_t* addr16bmap(int num);
 
         void setZ(bool status);
         void setN(bool status);

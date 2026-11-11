@@ -24,6 +24,16 @@ u_int8_t* Cpu::RegisterFile::addr8bmap(int num) {
     return nullptr;
 }
 
+u_int16_t* Cpu::RegisterFile::addr16bmap(int num) {
+    switch (num & 0b11) {
+        case 0b00: return &(this->BC);
+        case 0b01: return &(this->DE);
+        case 0b10: return &(this->HL);
+        case 0b11: return &(this->SP);
+    }
+    return nullptr;
+}
+
 
 
 void Cpu::RegisterFile::setZ(bool status) {
