@@ -102,6 +102,26 @@ PRIVATE
 )
 
 
+add_library(ppu)
+target_sources(ppu 
+PRIVATE 
+    src/graphics/ppu.cpp
+PUBLIC 
+    FILE_SET ppu_headers
+    TYPE HEADERS 
+    BASE_DIRS
+        include 
+    FILES 
+        include/graphics/ppu.h
+)
+target_link_libraries(ppu 
+PRIVATE 
+    graphics  
+)
+
+
+
+
 target_link_libraries(cpu 
 PRIVATE 
     busses
@@ -118,7 +138,7 @@ PRIVATE
     cpu
     memory
 
-    graphics
+    ppu
 )
 
 

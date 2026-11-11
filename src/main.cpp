@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <fstream>
 #include <stdexcept>
 #include <sys/types.h>
@@ -8,6 +9,7 @@
 #include "bus/controll.h"
 #include "bus/data.h"
 #include "cpu/cpu.h"
+#include "graphics/ppu.h"
 #include "memory/memory.h"
 
 #include "graphics/screen.h"
@@ -22,9 +24,6 @@
 */
 
 int main(int argc, char* argv[]) {
-    Graphics::Screen screen(160,144,6);
-
-
     std::streampos size;
     u_int8_t *pROMData;
 
@@ -49,20 +48,29 @@ int main(int argc, char* argv[]) {
     Memory::Memory memory(&DBus, &ABus, &CBus); 
 
 
-    memory.loadb(pROMData);
+    memory.loadb(pROMData, (size_t)size);
     DBus.clock(); ABus.clock(); CBus.clock();
     
-    int v = 0;
+    Graphics::PPU ppu(pROMData);
+    u_int8_t t_data[] = {
+        0x3C, 0x7E,
+        0x42, 0x42,
+        0x42, 0x42,
+        0x42, 0x42,
+        0x7E, 0x5E,
+        0x7E, 0x0A,
+        0x7C, 0x56,
+        0x38, 0x7C
+    };
     while (true) {
         //cpu.clock();
         //memory.clock();
 
         //DBus.clock(); ABus.clock(); CBus.clock();
-
-
-        int typ = screen.tick(++v);
-        if (typ != 0) { break; }
+        ppu.drawTile(t_data, 32, 16);
+        ppu.drawTile(t_data, 32, 41);
+        ppu.clock();
     }
-
+    SDL_Quit();
     delete[] pROMData;
 }

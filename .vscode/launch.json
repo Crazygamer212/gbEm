@@ -9,6 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/gbemu",
+            //"args": ["$PWD/roms/Legend of Zelda, The - Link's Awakening (USA, Europe) (Rev 2)/Legend of Zelda, The - Link's Awakening (USA, Europe) (Rev 2).gb"],
             "args": ["$PWD/roms/Tetris (World) (Rev 1)/Tetris (World) (Rev 1).gb"],
             //"stopAtEntry": true,
             "cwd": "${workspaceFolder}",

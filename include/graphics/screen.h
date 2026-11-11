@@ -9,6 +9,7 @@
 #include <SDL3/SDL_main.h>
 
 #include <stdbool.h>
+#include <sys/types.h>
 
 int main(int argc, char *argv[])
 {
@@ -72,13 +73,13 @@ namespace Graphics {
         SDL_Renderer *pRenderer = nullptr;
         SDL_Event event;
 
+    public:
+        int px_size{0};
         int x_size{0};
         int y_size{0};
-        int px_size{0};
-        int data[];
     public:
         Screen(int x_size, int y_size);
-        Screen(int x_size, int y_size, int px_size);
+        Screen(int x_size, int y_size, int px_size, const char *name);
         ~Screen();
 
         void drawPX(int x, int y, int c);
