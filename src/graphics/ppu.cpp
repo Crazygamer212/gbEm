@@ -6,7 +6,7 @@
 #include "graphics/screen.h"
 
 
-Graphics::PPU::PPU(u_int8_t vram[]) : vram(vram),
+Graphics::PPU::PPU(u_int8_t vram[], u_int8_t oam[]) : vram(vram), oam(oam),
 #ifndef NDEBUG 
     oamScreen(64*8, 12*8, 3, "OAM window"),
 #endif
@@ -38,12 +38,16 @@ void Graphics::PPU::clock() {
 #ifndef NDEBUG 
     for (int i=0; i<64; ++i) {
         for (int j=0; j<12; ++j) {
-            this->drawTile(vram + (j*64 + i)*16 + 8000, i*8 + 8, j*8 + 16, oamScreen);
+            this->drawTile(vram + (j*64 + i)*16, i*8 + 8, j*8 + 16, oamScreen);
         }
     }
     int v = oamScreen.tick(0);
     if (v) { throw std::runtime_error("app_closed");}
 #endif
+    for (u_int8_t t=0; t<(0xFEF0-0xFE00); t+=4) {
+        //oam[t+4] //flags
+        drawTile(vram + (oam[t+2]*16), oam[t+1], oam[t+0]);
+    }
     int c = screen.tick(0);
     if (c) { throw std::runtime_error("app_closed");}
 }

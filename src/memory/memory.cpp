@@ -34,21 +34,21 @@ u_int8_t& Memory::Memory::operator[](u_int16_t addr) {
     } else if ( addr < 0x8000 ) { // 16 KiB ROM Bank 01–NN
         return this->pRomBnkNN[1][addr-0x4000]; // https://gbdev.io/pandocs/MBC3.html
     } else if ( addr < 0xA000 ) { // 8 KiB Video RAM (VRAM)
-        return this->VRAM[addr-0xA000];
+        return this->VRAM[addr-0x8000];
     } else if ( addr < 0xC000 ) { // 8 KiB External RAM  --  From cartridge, switchable bank if any
-        return this->ERAM[addr-0xC000];
+        return this->ERAM[addr-0xA000];
     } else if ( addr < 0xD000 ) { // 4 KiB Work RAM (WRAM)
-        return this->WRAM[addr-0xD000];
+        return this->WRAM[addr-0xC000];
     } else if ( addr < 0xE000 ) { // 4 KiB Work RAM (WRAM)
-        return this->WRAM1[addr-0xE000]; // color gameboy switchable
+        return this->WRAM1[addr-0xD000]; // color gameboy switchable
     } else if ( addr < 0xFE00 ) { // Echo RAM (mirror of C000–DDFF)
-        return (*this)[addr-(0xFE00+0xC000)];
+        return (*this)[addr-(0xFE00+0xE000)];
     } else if ( addr < 0xFEA0 ) { // Object attribute memory (OAM)
-        return this->OAM[addr-0xFEA0];
+        return this->OAM[addr-0xFE00];
     } else if ( addr < 0xFF00 ) { // Not usable
         return *static_cast<u_int8_t*>(nullptr);
     } else if ( addr < 0xFF80 ) { // I/O Registers
-        return this->IORgs[addr-0xFF80];
+        return this->IORgs[addr-0xFF00];
     } else if ( addr < 0xFFFF ) { // High RAM (HRAM)
         return this->HRAM[addr-0xFF80];
     } else { // Interrupt Enable register (IE)
@@ -88,5 +88,12 @@ void Memory::Memory::loadb(u_int8_t *pData, size_t size) {
             this->pRomBnkNN[i][j] = pData[j+ (i)*0x4000];
         }
     }
-    return;
+}
+
+
+u_int8_t* Memory::Memory::getVRAM() {
+    return VRAM;
+}
+u_int8_t* Memory::Memory::getOAM() {
+    return OAM;
 }

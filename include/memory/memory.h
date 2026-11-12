@@ -32,6 +32,8 @@ namespace Memory {
         ~Memory();
 
         void clock();
+        u_int8_t* getVRAM();
+        u_int8_t* getOAM();
         void loadb(u_int8_t *pData, size_t size);
 
         u_int8_t& operator[](u_int16_t addr);

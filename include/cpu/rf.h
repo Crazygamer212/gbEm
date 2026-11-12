@@ -42,6 +42,7 @@ namespace Cpu {
         u_int8_t IE;
 
         u_int8_t Temp; //TEMP
+        u_int16_t Temp16;
         
 
         void clock(); // NOT USED

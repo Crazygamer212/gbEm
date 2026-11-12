@@ -1,6 +1,9 @@
 #include <cstddef>
 #include <fstream>
+#include <ostream>
 #include <stdexcept>
+#include <string>
+#include <iostream>
 #include <sys/types.h>
 
 
@@ -51,25 +54,17 @@ int main(int argc, char* argv[]) {
     memory.loadb(pROMData, (size_t)size);
     DBus.clock(); ABus.clock(); CBus.clock();
     
-    Graphics::PPU ppu(pROMData);
-    u_int8_t t_data[] = {
-        0x3C, 0x7E,
-        0x42, 0x42,
-        0x42, 0x42,
-        0x42, 0x42,
-        0x7E, 0x5E,
-        0x7E, 0x0A,
-        0x7C, 0x56,
-        0x38, 0x7C
-    };
-    while (true) {
-        //cpu.clock();
-        //memory.clock();
+    Graphics::PPU ppu(memory.getVRAM(), memory.getOAM());
 
-        //DBus.clock(); ABus.clock(); CBus.clock();
-        ppu.drawTile(t_data, 32, 16);
-        ppu.drawTile(t_data, 32, 41);
+    long long clock = 0;
+    while (true) {
+        std::cout << std::to_string(clock++) << std::endl;
+        cpu.clock();
+        memory.clock();
+
         ppu.clock();
+
+        DBus.clock(); ABus.clock(); CBus.clock();
     }
     SDL_Quit();
     delete[] pROMData;

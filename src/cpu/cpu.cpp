@@ -43,15 +43,15 @@ Cpu::Cpu::~Cpu() {
     delete(pRF);
 }
 
-void Cpu::Cpu::clock() { // CLK 4MHz
+/*void Cpu::Cpu::clock() { // CLK 4MHz
     if (timer % 4 == 0) {
         timer = 0;
         this->iclock(); // PHI 1MHz
     }
     timer++;
-}
+}*/
 
-void Cpu::Cpu::iclock() {
+void Cpu::Cpu::clock() {
     pRF->clock();
     pIDU->clock();
     pALU->clock();
