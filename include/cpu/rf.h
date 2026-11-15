@@ -39,6 +39,7 @@ namespace Cpu {
             };
         };
         u_int8_t IR;
+        u_int8_t CBIR;
         u_int8_t IE;
 
         u_int8_t Temp; //TEMP

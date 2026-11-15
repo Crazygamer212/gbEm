@@ -29,9 +29,11 @@ namespace Cpu {
             ALU *pALU, IDU *pIDU);
         ~ControllUnit();
 
+        void clock();
+
+    protected:
         void handle0b00(int trg, int src);
         void handle0b11(int trg, int src);
-
-        void clock();
+        void handleCB(int B2);
     };
 }

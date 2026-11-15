@@ -15,5 +15,6 @@ namespace Cpu {
         ~IDU();
         void clock();
         void nextPC();
+
     };
 }

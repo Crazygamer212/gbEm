@@ -5,15 +5,15 @@
 
 
 void Cpu::ControllUnit::handle0b11(int trg, int src) {
-    switch (trg) {
+    switch (src) {
         case 0b000: {
-            throw std::runtime_error("NI 0b11");
+            throw std::runtime_error("NI 0b11 000");
             break;
         } case 0b001: {
-            throw std::runtime_error("NI 0b11");
+            throw std::runtime_error("NI 0b11 001");
             break;
         } case 0b010: {
-            switch (trg & 0b100) {
+            switch (src & 0b100) {
                 case 0b000: { // JP
                     break;
                 } case 0b100: { // LD/LDH
@@ -22,13 +22,13 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
             }
             break;
         } case 0b011: {
-            throw std::runtime_error("NI 0b11");
+            throw std::runtime_error("NI 0b11 011");
             break;
         } case 0b100: {
-            throw std::runtime_error("NI 0b11");
+            throw std::runtime_error("NI 0b11 100");
             break;
         } case 0b101: {
-            throw std::runtime_error("NI 0b11");
+            throw std::runtime_error("NI 0b11 101");
             break;
         } case 0b110: { // ALU A,n8
             switch (this->Mc++) {
@@ -38,7 +38,7 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                     break;
                 } case 2: {
                     u_int8_t n8 = pDBus->read();
-                    switch (src) {
+                    switch (trg) {
                         case 0b000: {
                             pALU->addV(n8);
                             break;
@@ -83,7 +83,7 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                     pCBus->setState(Bus::State::write);
                     break;
                 } case 3: {
-                    pRF->PC = src;
+                    pRF->PC = trg;
                     this->Mc=1; // burn a clock to commit memory
                 }
                 default:

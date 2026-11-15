@@ -37,5 +37,14 @@ namespace Cpu {
 
         //void cpR(int r);
         void cpV(u_int8_t &v);
+
+
+        // Should be idu?
+        void incV(u_int8_t &V);
+        void decV(u_int8_t &V);
+
+        void addVV(u_int8_t &V1, u_int8_t &V2);
+        void adcVV(u_int8_t &V1, u_int8_t &V2);
+        void subVV(u_int8_t &V1, u_int8_t &V2);
     };
 }

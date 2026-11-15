@@ -150,6 +150,11 @@ PRIVATE
     test/cpu.cpp
     test/cpu_0x40-0x7f.cpp
     test/cpu_0x80-0xbf.cpp
+
+    test/cpu_0x00-0x3f.cpp
+    test/cpu_0xc0-0xff.cpp
+    
+    test/cpu_cb_prefix.cpp
 )
 target_link_libraries(test GTest::gtest GTest::gtest_main
     cpu

@@ -131,3 +131,60 @@ pRF->setC(0);
 )
 
 
+
+
+void Cpu::ALU::incV(u_int8_t &v) {
+    u_int8_t lower_nib = add4bit(v, 1, 0);
+    pRF->setH(lower_nib >> 4);
+    u_int8_t upper_nib = add4bit(v>>4, 0, pRF->getH());
+    pRF->setC(upper_nib >> 4);
+    v = (upper_nib&0xf) << 4  |  lower_nib&0xf;
+
+    pRF->setZ(v==0);
+    pRF->setN(0);
+};
+void Cpu::ALU::decV(u_int8_t &v) {
+    u_int8_t lower_nib = sub4bit(v, 1, 0);
+    pRF->setH(lower_nib >> 4);
+    u_int8_t upper_nib = sub4bit(v>>4, 0, pRF->getH());
+    pRF->setC(upper_nib >> 4);
+    //v = (upper_nib&0xf) << 4  |  lower_nib&0xf; //-- wont work if lower nibble needs carry and upper nibble fuffils
+    v--;
+
+    pRF->setZ(v==0);
+    pRF->setN(1);
+};
+
+
+void Cpu::ALU::addVV(u_int8_t &v1, u_int8_t &v2) {
+    u_int8_t lower_nib = add4bit(v1, v2, 0);
+    pRF->setH(lower_nib >> 4);
+    u_int8_t upper_nib = add4bit(v1>>4, v2>>4, pRF->getH());
+    pRF->setC(upper_nib >> 4);
+    v1 = (upper_nib&0xf) << 4  |  lower_nib&0xf;
+
+    pRF->setZ(v1==0);
+    pRF->setN(0);
+};
+void Cpu::ALU::adcVV(u_int8_t &v1, u_int8_t &v2) {
+    u_int8_t lower_nib = add4bit(v1, v2, pRF->getC());
+    pRF->setH(lower_nib >> 4);
+    u_int8_t upper_nib = add4bit(v1>>4, v2>>4, pRF->getH());
+    pRF->setC(upper_nib >> 4);
+    v1 = (upper_nib&0xf) << 4  |  lower_nib&0xf;
+
+    pRF->setZ(v1==0);
+    pRF->setN(0);
+};
+
+void Cpu::ALU::subVV(u_int8_t &v1, u_int8_t &v2) {
+    u_int8_t lower_nib = sub4bit(v1, v2, 0);
+    pRF->setH(lower_nib >> 4);
+    u_int8_t upper_nib = sub4bit(v1>>4, v2>>4, pRF->getH());
+    pRF->setC(upper_nib >> 4);
+    //v = (upper_nib&0xf) << 4  |  lower_nib&0xf; //-- wont work if lower nibble needs carry and upper nibble fuffils
+    v1-=v2;
+
+    pRF->setZ(v1==0);
+    pRF->setN(1);
+};
