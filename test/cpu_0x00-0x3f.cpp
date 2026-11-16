@@ -259,7 +259,7 @@ TEST_F(CPUTest, LD_I2R) {
 
 TEST_F(CPUTest, LD_I2SP) {
     RF.SP = 0x0080;
-    DBus.write(0x61);// LD SP, n16
+    DBus.write(0x31);// LD SP, n16
 
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M2

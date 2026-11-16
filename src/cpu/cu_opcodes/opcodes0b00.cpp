@@ -88,8 +88,24 @@ void Cpu::ControllUnit::handle0b00(int trg, int src) {
             break;
         }
         case 0b001: { // LD/ADD
-            u_int8_t *pR8l = pRF->addr8bmap((trg&0b110) | 1);
-            u_int8_t *pR8h = pRF->addr8bmap((trg&0b110) | 0);
+            u_int8_t *pR8l;
+            u_int8_t *pR8h;
+            switch (trg & 0b110) {
+                case 0b000:
+                case 0b010: {
+                    pR8l = pRF->addr8bmap((trg&0b110) | 1);
+                    pR8h = pRF->addr8bmap((trg&0b110) | 0);
+                    break;
+                } case 0b100: {
+                    pR8l = reinterpret_cast<uint8_t*>(&pRF->HL);
+                    pR8h = reinterpret_cast<uint8_t*>(&pRF->HL) + 1;
+                    break;
+                } case 0b110: {
+                    pR8l = reinterpret_cast<uint8_t*>(&pRF->SP);
+                    pR8h = reinterpret_cast<uint8_t*>(&pRF->SP) + 1;
+                    break;
+                }
+            }
             switch (trg & 1) {
                 case 0: { // LD rr, n16
                     switch (this->Mc++) {
