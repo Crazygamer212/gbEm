@@ -39,12 +39,18 @@ namespace Cpu {
         void cpV(u_int8_t &v);
 
 
-        // Should be idu?
+        // Should be idu? nope due to flags?
         void incV(u_int8_t &V);
         void decV(u_int8_t &V);
 
         void addVV(u_int8_t &V1, u_int8_t &V2);
         void adcVV(u_int8_t &V1, u_int8_t &V2);
         void subVV(u_int8_t &V1, u_int8_t &V2);
+
+        void rlcV(u_int8_t &V);
+        void rrcV(u_int8_t &V);
+
+        void rlV(u_int8_t &V);
+        void rrV(u_int8_t &V);
     };
 }

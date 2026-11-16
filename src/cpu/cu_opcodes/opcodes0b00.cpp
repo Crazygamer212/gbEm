@@ -1,6 +1,7 @@
 #include "bus/controll.h"
 #include "cpu/alu.h"
 #include "cpu/cu.h"
+#include "cpu/rf.h"
 #include <cstdint>
 #include <stdexcept>
 #include <sys/types.h>
@@ -67,6 +68,7 @@ void Cpu::ControllUnit::handle0b00(int trg, int src) {
                                 break;
                             }
                         }
+                        if (this->Mc != 1) { pCBus->setState(Bus::idle); }
                     }
                     break;
                 }
@@ -74,6 +76,7 @@ void Cpu::ControllUnit::handle0b00(int trg, int src) {
                     if (trg == 1) {throw std::runtime_error("LD (a16), SP [0x01] opcode not implemented. Why 5?? like i get why but WHYYY!?!");}
                     else { // jump
                         pRF->PC+=static_cast<int8_t>(pRF->Temp);
+                        this->Mc=1;
                     }
                     break;
                 }
@@ -85,8 +88,8 @@ void Cpu::ControllUnit::handle0b00(int trg, int src) {
             break;
         }
         case 0b001: { // LD/ADD
-            u_int8_t *pR8l = pRF->addr8bmap((trg&0b110) | 0);
-            u_int8_t *pR8h = pRF->addr8bmap((trg&0b110) | 1);
+            u_int8_t *pR8l = pRF->addr8bmap((trg&0b110) | 1);
+            u_int8_t *pR8h = pRF->addr8bmap((trg&0b110) | 0);
             switch (trg & 1) {
                 case 0: { // LD rr, n16
                     switch (this->Mc++) {
@@ -124,7 +127,50 @@ void Cpu::ControllUnit::handle0b00(int trg, int src) {
             break;
         }
         case 0b010: {// LD r16, A --- LD A, r16
-            throw std::runtime_error("Not implemented");
+            auto choseR = [](RegisterFile *pRF, u_int8_t c) {
+                switch (c) { 
+                    case 0b000: {
+                        return pRF->BC;
+                    }  case 0b010: {
+                        return pRF->DE;
+                    }  case 0b100: {
+                        return pRF->HL++;
+                    }  case 0b110: {
+                        return pRF->HL--;
+                    }
+                    default: {
+                        throw std::runtime_error("OOB execution");
+                    }
+                }
+            };
+            switch (this->Mc++) {
+                case 1: { // IM[R16] << A   // A << IM[R16]
+                    switch (trg & 1) {
+                        case 0: { // IM[R16] << A
+                            pABus->write(choseR(pRF, trg & 0b110));
+                            pCBus->setState(Bus::State::write);
+                            pDBus->write(pRF->A);
+                            break;
+                        } case 1: { // A << IM[R16] 
+                            pABus->write(choseR(pRF, trg & 0b110));
+                            pCBus->setState(Bus::State::read);
+                            break;
+                        }
+                    }
+                    break;
+                } case 2: {
+                    switch (trg & 1) {
+                        case 0: { // IM[R16] << A
+                            break;
+                        } case 1: { // A << IM[R16]
+                            pRF->A = pDBus->read();
+                            break;
+                        }
+                    }
+                    this->Mc=1;
+                    break;
+                } default: throw std::runtime_error("OOB execution");
+            }
             break;
         }
         case 0b011: { // INC/DEC r16
@@ -132,15 +178,15 @@ void Cpu::ControllUnit::handle0b00(int trg, int src) {
                 case 1: {
                     switch (1 & trg) {
                         case 0:
-                            ++*this->pRF->addr16bmap(0b11 & (src>>2)); // bitwise& not nessecery
+                            ++*this->pRF->addr16bmap(/*0b11 &*/ (src>>2)); // bitwise& not nessecery
                             break;
                         case 1:
-                            --*this->pRF->addr16bmap(0b11 & (src>>2));
+                            --*this->pRF->addr16bmap(/*0b11 &*/ (src>>2));
                             break;
                     }
                     break;
                 } case 2: {
-                    this->Mc=1;// burns a clock due to 2 IDU opps
+                    this->Mc=1;// burns a clock due to 2 opps  //TODO add flags
                     break;
                 }
             }
@@ -201,7 +247,41 @@ void Cpu::ControllUnit::handle0b00(int trg, int src) {
             break;
         }
         case 0b111: { // Rot+othrs
-            throw std::runtime_error("Not implemented");
+            switch (trg &0b100) {
+                case 0b000: {
+                    switch (trg & 0b11) {
+                        case 0b00: { pALU->rlcV(pRF->A); }
+                        case 0b01: { pALU->rrcV(pRF->A); }
+                        case 0b10: { pALU->rlV(pRF->A); }
+                        case 0b11: { pALU->rrV(pRF->A); }
+                    }
+                    break;
+                } case 0b100: {
+                    switch (trg & 0b11) {
+                        case 0b00: { // DAA
+                            throw std::runtime_error("NI as not documented in gbctr");
+                            break;
+                        } case 0b01: { // CPL
+                            pRF->setN(1);
+                            pRF->setH(1);
+                            pRF->A = ~pRF->A; 
+                            break;
+                        } case 0b10: { // SCF
+                            pRF->setC(1);
+                            pRF->setH(0);
+                            pRF->setN(0);
+                            break;
+                        } case 0b11: { // CCF
+                            pRF->setH(0);
+                            pRF->setN(0);
+                            pRF->setC(!pRF->getC());
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            this->Mc = 1;
             break;
         }
     }

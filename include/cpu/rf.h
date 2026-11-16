@@ -13,29 +13,29 @@ namespace Cpu {
         union {
             u_int16_t AF;
             struct {
-                u_int8_t A;
                 u_int8_t F;
+                u_int8_t A;
             };
         };
         union {
             u_int16_t BC;
             struct {
-                u_int8_t B;
                 u_int8_t C;
+                u_int8_t B;
             };
         };
         union {
             u_int16_t DE;
             struct {
-                u_int8_t D;
                 u_int8_t E;
+                u_int8_t D;
             };
         };
         union {
             u_int16_t HL;
             struct {
-                u_int8_t H;
                 u_int8_t L;
+                u_int8_t H;
             };
         };
         u_int8_t IR;

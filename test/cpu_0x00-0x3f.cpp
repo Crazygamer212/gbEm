@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <sys/types.h>
 
 #include "cpu/cpu.h"
 
@@ -131,9 +132,8 @@ TEST_F(CPUTest, LD_a2R) {
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M3
 
-    EXPECT_EQ(ABus.read(), 0x02);
+    EXPECT_EQ(ABus.read(), 0x01);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::read);
-    EXPECT_EQ(RF.A, 60);
 }
 
 
@@ -176,7 +176,7 @@ TEST_F(CPUTest, LD_a2HLdec) {
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M3
 
-    EXPECT_EQ(ABus.read(), 0x02);
+    EXPECT_EQ(ABus.read(), 0x01);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::read);
     EXPECT_EQ(RF.A, 44);
     EXPECT_EQ(RF.HL, 0x4344);
@@ -214,7 +214,7 @@ TEST_F(CPUTest, LD_a2HLinc) {
     RF.HL = 0x4345;
     RF.A  = 44;
 
-    DBus.write(0x32);// LD (HL-), A
+    DBus.write(0x22);// LD (HL+), A
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M2
     EXPECT_EQ(ABus.read(), 0x4345);
@@ -224,7 +224,7 @@ TEST_F(CPUTest, LD_a2HLinc) {
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M3
 
-    EXPECT_EQ(ABus.read(), 0x02);
+    EXPECT_EQ(ABus.read(), 0x01);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::read);
     EXPECT_EQ(RF.A, 44);
     EXPECT_EQ(RF.HL, 0x4346);
@@ -234,33 +234,55 @@ TEST_F(CPUTest, LD_a2HLinc) {
 
 
 TEST_F(CPUTest, LD_I2R) {
-
+    //little endian
     DBus.write(0x01);// LD BC, nn
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M2
     EXPECT_EQ(ABus.read(), 0x01);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
-    DBus.write(0x3300>>8);
+    DBus.write(0x33); // fetch low byte
 
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M3
     EXPECT_EQ(ABus.read(), 0x02);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
-    DBus.write(0x44);
-
+    DBus.write(0x44); // fetch high byte
 
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M4
     EXPECT_EQ(ABus.read(), 0x03);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::read);
-    EXPECT_EQ(RF.BC, 0x3344);
+    EXPECT_EQ(RF.BC, 0x4433);
 }
 
 
 
+TEST_F(CPUTest, LD_I2SP) {
+    RF.SP = 0x0080;
+    DBus.write(0x61);// LD SP, n16
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(ABus.read(), 0x01);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    DBus.write(0xcc);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M3
+    EXPECT_EQ(ABus.read(), 0x02);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    DBus.write(0xdd);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M4/1
+    EXPECT_EQ(RF.SP, 0xddcc);
+    EXPECT_EQ(ABus.read(), 0x03);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+}
+
 TEST_F(CPUTest, LD_SP2I) {
     RF.SP = 0x0080;
-    DBus.write(0x01);// LD (nn), SP
+    DBus.write(0x08);// LD (nn), SP
 
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M2
@@ -276,15 +298,15 @@ TEST_F(CPUTest, LD_SP2I) {
 
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M4
-    EXPECT_EQ(ABus.read(), 0xccdd);
+    EXPECT_EQ(ABus.read(), 0xddcc);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::State::write);
-    EXPECT_EQ(DBus.read(), 0x00);
+    EXPECT_EQ(DBus.read(), 0x80);
 
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M5
     EXPECT_EQ(ABus.read(), 0xccde);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::State::write);
-    EXPECT_EQ(DBus.read(), 0x80);
+    EXPECT_EQ(DBus.read(), 0x00);
 
 
     DBus.clock(); ABus.clock(); CBus.clock();
@@ -292,6 +314,9 @@ TEST_F(CPUTest, LD_SP2I) {
     EXPECT_EQ(ABus.read(), 0x03);
     EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
 }
+
+
+
 
 TEST_F(CPUTest, INC_r) {
     RF.B = 0xac;
@@ -463,13 +488,13 @@ TEST_F(CPUTest, CCF) {
 }
 
 
-TEST_F(CPUTest, CSF) {
+TEST_F(CPUTest, SCF) {
     RF.B = 0x00;
     RF.setZ(1);
     RF.setC(0);
     RF.setH(1);
     RF.setN(1);
-    DBus.write(0x37);// CSF
+    DBus.write(0x37);// SCF
 
     DBus.clock(); ABus.clock(); CBus.clock();
     CU.clock(); //M2
@@ -566,5 +591,209 @@ TEST_F(CPUTest, DEC_R) {
 }
 
 
-//TODO ADD HL, rr
+TEST_F(CPUTest, ADD_HL_R) {
+    RF.BC = 0x3201;
+    RF.H = 0x29;
+    RF.L = 0xff;
+
+    RF.setZ(1);
+    RF.setC(0);
+    RF.setH(0);
+    RF.setN(1);
+    DBus.write(0x09);// ADD HL, BC
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::idle);
+    EXPECT_EQ(RF.getN(), 0);
+    EXPECT_EQ(RF.getC(), 1);
+    EXPECT_EQ(RF.getH(), 1);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M3
+    EXPECT_EQ(RF.getN(), 0);
+    EXPECT_EQ(RF.getC(), 0);
+    EXPECT_EQ(RF.getH(), 0);
+
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x01);
+
+    EXPECT_EQ(RF.BC, 0x5c00);
+}
+
+
+
+TEST_F(CPUTest, RLCA) {
+    RF.A = 0b10010101;
+
+    RF.setZ(1);
+    RF.setC(0);
+    RF.setN(1);
+    RF.setH(1);
+    DBus.write(0x07);// RLCA
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(RF.getN(), 0);
+    EXPECT_EQ(RF.getC(), 1); // rolled from msb
+    EXPECT_EQ(RF.getH(), 0);
+    EXPECT_EQ(RF.getZ(), 0);
+
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x01);
+
+    EXPECT_EQ(RF.A, 0b00100101);
+}
+
+TEST_F(CPUTest, RRCA) {
+    RF.A = 0b10010101;
+
+    RF.setZ(1);
+    RF.setC(0);
+    RF.setN(1);
+    RF.setH(1);
+    DBus.write(0x07);// RLCA
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(RF.getN(), 0);
+    EXPECT_EQ(RF.getC(), 1); // rolled from lsb
+    EXPECT_EQ(RF.getH(), 0);
+    EXPECT_EQ(RF.getZ(), 0);
+
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x01);
+
+    EXPECT_EQ(RF.A, 0b11001010);
+}
+
+
+TEST_F(CPUTest, RLA) {
+    RF.A = 0b10010101;
+
+    RF.setZ(1);
+    RF.setC(0);
+    RF.setN(1);
+    RF.setH(1);
+    DBus.write(0x17);// RLA
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(RF.getN(), 0);
+    EXPECT_EQ(RF.getC(), 1); // rolled from msb
+    EXPECT_EQ(RF.getH(), 0);
+    EXPECT_EQ(RF.getZ(), 0);
+
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x01);
+
+    EXPECT_EQ(RF.A, 0b00101010); // 0 at end came from carry flag
+}
+
+TEST_F(CPUTest, RRA) {
+    RF.A = 0b10010101;
+
+    RF.setZ(1);
+    RF.setC(0);
+    RF.setN(1);
+    RF.setH(1);
+    DBus.write(0x1F );// RRA
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(RF.getN(), 0);
+    EXPECT_EQ(RF.getC(), 1); // rolled from lsb
+    EXPECT_EQ(RF.getH(), 0);
+    EXPECT_EQ(RF.getZ(), 0);
+
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    EXPECT_EQ(ABus.read(), 0x01);
+
+    EXPECT_EQ(RF.A, 0b01001010); // 0 at end came from carry flag
+}
+
+
+
+
+TEST_F(CPUTest, JR_e_negative) {
+    RF.PC = 0x101;
+    DBus.write(0x18 );// JR -0x31    assumes JR starts at 0x100
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(ABus.read(), 0x101);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    DBus.write(static_cast<u_int8_t>((int8_t)-0x31));
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M3
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::idle);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M4/1
+    EXPECT_EQ(ABus.read(), 0xD1);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+
+}
+
+TEST_F(CPUTest, JR_e_possitive) {
+    RF.PC = 0x101;
+    DBus.write(0x18 );// JR 0x32    assumes JR starts at 0x100
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2     PC = 0x102 here?
+    EXPECT_EQ(ABus.read(), 0x101);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    DBus.write((u_int8_t)0x32);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M3
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::idle);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M4/1
+    EXPECT_EQ(ABus.read(), 0x134);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+}
+
+
+TEST_F(CPUTest, JR_cc_e__failed) {
+    RF.PC = 0x101;
+    RF.setZ(1); // if Z = 0 then branch
+    DBus.write(0x20 );// JR 0x20    assumes JR starts at 0x100
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(ABus.read(), 0x101);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    DBus.write((u_int8_t)0x32);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M3/1
+    EXPECT_EQ(ABus.read(), 0x102);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+}
+
+TEST_F(CPUTest, JR_cc_e__success) {
+    RF.PC = 0x101;
+    RF.setZ(0);
+    DBus.write(0x20 );// JR 0x20    assumes JR starts at 0x100
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M2
+    EXPECT_EQ(ABus.read(), 0x101);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+    DBus.write((int8_t)-0x32);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M3
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::idle);
+
+    DBus.clock(); ABus.clock(); CBus.clock();
+    CU.clock(); //M4/1
+    EXPECT_EQ(ABus.read(), 0xD0);
+    EXPECT_EQ(CBus.getState(), Cpu::Bus::State::read);
+}
+
+
 

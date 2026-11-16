@@ -84,6 +84,20 @@ TEST(CPU, NOP) {
 
 
 
+TEST(CPU, RF_R_r_endianess__cardinality) {
+    Cpu::RegisterFile RF;
+    RF.HL = 0x1234;
+    EXPECT_EQ(RF.H, 0x12);
+    EXPECT_EQ(RF.L, 0x34);
+
+    RF.BC = 0x1234;
+    EXPECT_EQ(RF.B, 0x12);
+    EXPECT_EQ(RF.C, 0x34);
+
+    RF.DE = 0x1234;
+    EXPECT_EQ(RF.D, 0x12);
+    EXPECT_EQ(RF.E, 0x34);
+}
 
 
 

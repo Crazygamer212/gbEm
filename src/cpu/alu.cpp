@@ -2,6 +2,7 @@
 
 #include "bus/data.h"
 #include "cpu/rf.h"
+#include <stdexcept>
 #include <sys/types.h>
 
 
@@ -188,3 +189,19 @@ void Cpu::ALU::subVV(u_int8_t &v1, u_int8_t &v2) {
     pRF->setZ(v1==0);
     pRF->setN(1);
 };
+
+
+
+
+void Cpu::ALU::rlcV(u_int8_t &V) {
+    throw std::runtime_error("ALU: NI");
+}
+void Cpu::ALU::rrcV(u_int8_t &V) {
+    throw std::runtime_error("ALU: NI");
+}
+void Cpu::ALU::rlV(u_int8_t &V) {
+    throw std::runtime_error("ALU: NI");
+}
+void Cpu::ALU::rrV(u_int8_t &V) {
+    throw std::runtime_error("ALU: NI");
+}
