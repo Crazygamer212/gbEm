@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 
     long long clock = 0;
     while (true) {
-        std::cout << std::to_string(clock++) << std::endl;
+        std::cout << std::to_string(clock++) << "|  opcode: " << std::to_string(cpu.getOpcode()) << std::endl;
         cpu.clock();
         memory.clock();
 

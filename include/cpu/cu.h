@@ -32,8 +32,8 @@ namespace Cpu {
         void clock();
 
     protected:
+        void handleCB();
         void handle0b00(int trg, int src);
         void handle0b11(int trg, int src);
-        void handleCB(int B2);
     };
 }

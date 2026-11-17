@@ -1,7 +1,10 @@
-#include "bus/controll.h"
 #include "cpu/cu.h"
+
 #include <stdexcept>
 #include <sys/types.h>
+
+#include "bus/controll.h"
+
 
 
 void Cpu::ControllUnit::handle0b11(int trg, int src) {
@@ -60,7 +63,29 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                         }
                     }
                 } case 1: {
-                    throw std::runtime_error("NI 0b11 001 xx0");
+                    switch (trg &0b110) {
+                        case 0b010:
+                        case 0b000: {
+                            switch (this->Mc++) {
+                                case 1: {
+                                    pABus->write(pRF->SP++);
+                                    pCBus->setState(Bus::State::read);
+                                    break;
+                                } case 2: {
+                                    pRF->Temp = pDBus->read();
+                                    pABus->write(pRF->SP++);
+                                    pCBus->setState(Bus::State::read);
+                                    break;
+                                } case 3: {
+                                    pRF->PC = pDBus->read()<<8 | pRF->Temp;
+                                    if (trg == 0b010) {/* IME = 1 */ throw std::runtime_error("NI IME"); } //TODO
+                                    break;
+                                } case 4: {
+                                    this->Mc=1;
+                                }
+                            }
+                        }
+                    }
                     break;
                 }
             }
@@ -100,7 +125,15 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                     }
                 }
                 case 1: {
-                    /*call CB prefix*/ //TODO
+                    switch (this->Mc++) {
+                        case 1: {
+                            pIDU->nextPC();
+                            break;
+                        } default: {
+                            this->handleCB();
+                            break;
+                        }
+                    }
                     throw std::runtime_error("NI CB prefix");
                 }
                 case 6:
@@ -153,7 +186,65 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
             }
             break;
         } case 0b101: {
-            throw std::runtime_error("NI 0b11 101");
+            switch (trg & 1) {
+                case 0: { // PUSH reg
+                    switch (this->Mc++) {
+                        case 1: {
+                            // SP--   // theoretically - done later as syntax
+                            pCBus->setState(Bus::State::idle);
+                        }
+                        case 2: {
+                            pDBus->write(*pRF->addr8bmapForSP(trg | 0));
+                            pABus->write(--pRF->SP);
+                            pCBus->setState(Bus::State::write);
+                        } case 3: {
+                            pDBus->write(*pRF->addr8bmapForSP(trg | 1));
+                            pABus->write(--pRF->SP);
+                            pCBus->setState(Bus::State::write);
+                        } case 4: {
+                            pCBus->setState(Bus::State::idle);
+                        }
+                    }
+                    break;
+                } case 1: { // bricks and other boring stuff (CALL a16 -- call imidiate)
+                    if (trg == 1) {
+                        switch (this->Mc++) { //TODO check if this is backwards?
+                            case 1: {
+                                pABus->write(pRF->PC++);
+                                pCBus->setState(Bus::State::read);
+                                break;
+                            } case 2: {
+                                pABus->write(pRF->PC++);
+                                pCBus->setState(Bus::State::read);
+                                pRF->Temp=pDBus->read();
+                                break;
+                            } case 3: {
+                                pRF->Temp16 = pDBus->read()<<8 | pRF->Temp;
+                                //SP-- theoretical done instead in M5
+                                pCBus->setState(Bus::State::idle);
+                                break;
+                            } case 4: {
+                                pABus->write(--pRF->SP);
+                                pDBus->write(reinterpret_cast<u_int8_t*>(&pRF->PC)[1]); //msB
+                                pCBus->setState(Bus::State::write);
+                                break;
+                            } case 5: {
+                                pABus->write(--pRF->SP);
+                                pDBus->write(reinterpret_cast<u_int8_t*>(&pRF->PC)[0]); //lsB
+                                pCBus->setState(Bus::State::write);
+                                pRF->PC=pRF->Temp16;
+                                break;
+                            } case 6: {
+                                this->Mc=1;
+                                break;
+                            }
+                        }
+                    } else {
+                        throw std::runtime_error("bricking opcode called");
+                    }
+                    break;
+                }
+            }
             break;
         } case 0b110: { // ALU A,n8
             switch (this->Mc++) {

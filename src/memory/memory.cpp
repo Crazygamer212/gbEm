@@ -68,6 +68,9 @@ void Memory::Memory::clock() {
             (*this)[pABus->read()] = pDBus->read();
             break;
         }
+        case Bus::State::idle: {
+            break;// lazy like me    d-(^_^)z
+        }
         default: {
             throw std::runtime_error("controll state undefined");
         }

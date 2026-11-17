@@ -35,6 +35,8 @@ namespace Cpu {
         
         void clock();
         void iclock();
+        
+        int getOpcode();
     };
 
 }

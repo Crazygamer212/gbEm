@@ -1,11 +1,13 @@
-#include "bus/controll.h"
 #include "cpu/cu.h"
+
 #include <cstdint>
 #include <stdexcept>
 #include <sys/types.h>
 
-void Cpu::ControllUnit::handleCB(int B2) {
-    if (this->Mc == 2)  pRF->CBIR = B2;
+#include "bus/controll.h"
+
+void Cpu::ControllUnit::handleCB() {
+    if (this->Mc == 2)  pRF->CBIR = pDBus->read();
     u_int8_t *pr8 = pRF->addr8bmap( pRF->CBIR & 0x07);
     if (pr8 == nullptr) {
         throw std::runtime_error("CB [HL] operations NI");
@@ -13,7 +15,7 @@ void Cpu::ControllUnit::handleCB(int B2) {
         return;
     };
 
-    u_int8_t t_bit = 1 << ( (B2>>3)&0b111 );
+    u_int8_t t_bit = 1 << ( (pDBus->read()>>3)&0b111 );
     switch (pRF->CBIR & 0xC0) {
         case 0x00: { //operations
             throw std::runtime_error("NI B2@opp");

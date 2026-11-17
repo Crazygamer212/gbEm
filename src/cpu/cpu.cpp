@@ -58,3 +58,8 @@ void Cpu::Cpu::clock() {
 
     pCU->clock(); // the only thing that does
 }
+
+
+int Cpu::Cpu::getOpcode() {
+    return pRF->IR;
+}

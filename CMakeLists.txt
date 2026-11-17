@@ -24,6 +24,7 @@ PRIVATE
     src/cpu/cu.cpp
     src/cpu/cu_opcodes/opcodes0b00.cpp
     src/cpu/cu_opcodes/opcodes0b11.cpp
+    src/cpu/cu_opcodes/cb_prefixed.cpp
     src/cpu/alu.cpp
     src/cpu/idu.cpp
     src/cpu/rf.cpp
