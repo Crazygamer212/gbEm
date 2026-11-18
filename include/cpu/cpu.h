@@ -32,6 +32,9 @@ namespace Cpu {
     public:
         Cpu(Bus::Data* pDBus, Bus::Addr* pABus, Bus::Ctrl* pCBus);  /*SoC DBus, SoC ABus, Soc CBus*/
         ~Cpu();
+
+        u_int8_t& getIE();
+        u_int8_t& getIF();
         
         void clock();
         void iclock();

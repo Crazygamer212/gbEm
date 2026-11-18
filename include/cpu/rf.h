@@ -41,6 +41,8 @@ namespace Cpu {
         u_int8_t IR;
         u_int8_t CBIR;
         u_int8_t IE;
+        u_int8_t IF;
+        bool IME{false};
 
         u_int8_t Temp; //TEMP
         u_int16_t Temp16;

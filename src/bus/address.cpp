@@ -5,7 +5,9 @@
 
 
 void Cpu::Bus::Addr::clock() {
+#ifndef NDEBUG
     this->written_this_clock = false;
+#endif
 }
 
 u_int16_t Cpu::Bus::Addr::read() {
@@ -13,9 +15,11 @@ u_int16_t Cpu::Bus::Addr::read() {
 }
 
 void Cpu::Bus::Addr::write(u_int16_t data) {
+#ifndef NDEBUG
     if(this->written_this_clock) {
         throw std::runtime_error("Address bus written to more than once this clock");
     }
-    this->data = data;
     this->written_this_clock = true;
+#endif
+    this->data = data;
 }

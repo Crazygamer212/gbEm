@@ -21,7 +21,7 @@ namespace Cpu {
         ALU *pALU;
         IDU *pIDU;
 
-        bool finIR = true;
+        bool finIR{false};
         int Mc{1};
 
     public:
@@ -32,6 +32,7 @@ namespace Cpu {
         void clock();
 
     protected:
+        bool/*is interupted?*/ handleInterupts(); 
         void handleCB();
         void handle0b00(int trg, int src);
         void handle0b11(int trg, int src);

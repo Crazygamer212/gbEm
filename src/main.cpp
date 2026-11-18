@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <sys/types.h>
+#include <chrono>
 
 
 
@@ -17,6 +18,11 @@
 
 #include "graphics/screen.h"
 
+
+// TODO
+//TODO
+// TODO
+// CHECK TESTS FOR LITTLE ENDIANESS
 
 // clock cycle:
 /*
@@ -48,7 +54,7 @@ int main(int argc, char* argv[]) {
     Cpu::Bus::Ctrl CBus;
 
     Cpu::Cpu       cpu   (&DBus, &ABus, &CBus);
-    Memory::Memory memory(&DBus, &ABus, &CBus); 
+    Memory::Memory memory(&DBus, &ABus, &CBus, cpu.getIE(), cpu.getIF()); 
 
 
     memory.loadb(pROMData, (size_t)size);
@@ -58,13 +64,44 @@ int main(int argc, char* argv[]) {
 
     long long clock = 0;
     while (true) {
-        std::cout << std::to_string(clock++) << "|  opcode: " << std::to_string(cpu.getOpcode()) << std::endl;
+#ifndef NDEBUG
+        auto start_cpu = std::chrono::high_resolution_clock::now();
+#endif
         cpu.clock();
+
+#ifndef NDEBUG
+        auto cpu_mem = std::chrono::high_resolution_clock::now();
+#endif
         memory.clock();
 
+#ifndef NDEBUG
+        auto mem_ppu = std::chrono::high_resolution_clock::now();
+#endif
         ppu.clock();
+        
+#ifndef NDEBUG
+        auto mem_bus = std::chrono::high_resolution_clock::now();
+        DBus.clock(); ABus.clock(); CBus.clock(); //don't need clocks if not checking for multiple clocks
+#endif
 
-        DBus.clock(); ABus.clock(); CBus.clock();
+
+#ifndef NDEBUG
+        auto bus_end = std::chrono::high_resolution_clock::now();
+#endif
+
+#ifndef NDEBUG
+        std::cout << std::to_string(clock++) 
+        << "|  opcode: " << std::to_string(cpu.getOpcode())
+        << std::endl
+        << "| CPU " << std::chrono::duration_cast<std::chrono::microseconds>(cpu_mem-start_cpu).count()
+        << std::endl
+        << "| MEM " << std::chrono::duration_cast<std::chrono::microseconds>(mem_ppu-cpu_mem).count()
+        << std::endl
+        << "| PPU " << std::chrono::duration_cast<std::chrono::microseconds>(mem_bus-mem_ppu).count()
+        << std::endl
+        << "| BUS " << std::chrono::duration_cast<std::chrono::microseconds>(bus_end-mem_bus).count()
+        << std::endl;
+#endif
     }
     SDL_Quit();
     delete[] pROMData;

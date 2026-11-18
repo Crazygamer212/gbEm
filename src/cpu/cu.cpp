@@ -16,19 +16,60 @@
 Cpu::ControllUnit::ControllUnit(RegisterFile *pRF, Bus::Addr *pABus, Bus::Data *pDBus, Bus::Ctrl *pCBus, ALU *pALU, IDU *pIDU)
  : pRF(pRF), pDBus(pDBus), pABus(pABus), pCBus(pCBus), pALU(pALU), pIDU(pIDU) {
     // shouldn't use pRF - deligate to ALU+IDU
+    // too late :P also easier with pRF
 }
 
 Cpu::ControllUnit::~ControllUnit() {
 
 }
 
-// TODO: STATES!
-/*  have the CU have different states for M cycles. it stores OPcode untill it is done.
- *  This allows it to wait for memory fetches and have states per clock while knowing what it's running
- */ 
+
+//https://gbdev.io/pandocs/Interrupts.html?highlight=IE#ffff--ie-interrupt-enable
+//TODO IEoppcode is delayed by one instruction resulting in one more instruction ran
+// EI
+// DI ; this does nothing for 2 clocks because of above
+bool Cpu::ControllUnit::handleInterupts() {
+    if (!pRF->IME) { return false; }
+
+    for (int i=0; i<5; i++) {
+        if (pRF->IE & (1<<i)  &&  pRF->IF & (1<<i)) {
+            switch(Mc++) {
+                case 1: { // accepts highest prioroty interupt
+                    return true;
+                } case 2: {
+                    return true; // dissables IME. will do in last Mc due to this function needing it
+                } case 3: {
+                    pABus->write(--pRF->SP);
+                    pDBus->write( reinterpret_cast<u_int8_t*>(&pRF->PC)[1]);
+                    pCBus->setState(Bus::State::write);
+                    return true;
+                } case 4: {
+                    pABus->write(--pRF->SP);
+                    pDBus->write( reinterpret_cast<u_int8_t*>(&pRF->PC)[0]);
+                    pCBus->setState(Bus::State::write);
+                    return true;
+                } case 5: {
+                    pRF->IME=false;
+                    pRF->PC=0x40 + 0x8*i;
+                    pRF->IR=0;
+                    this->Mc=1;
+                    pRF->IF &= ~(1 << i);
+                    pIDU->nextPC();
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+
+
 void Cpu::ControllUnit::clock() {
 
     if (this->Mc == 1) {
+        if ( this->handleInterupts() ) { return; }
         pRF->IR = this->pDBus->read();
     }
 

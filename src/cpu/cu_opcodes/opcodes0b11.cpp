@@ -38,7 +38,7 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                         }
                     }
                     break;
-                } case 0b100: {
+                } case 0b100: { // LDH / ADD SP / LD HL
                     throw std::runtime_error("NI 0b11 000 1xx");
                     break;
                 }
@@ -62,6 +62,7 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                             break;
                         }
                     }
+                    break;
                 } case 1: {
                     switch (trg &0b110) {
                         case 0b010:
@@ -78,12 +79,16 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                                     break;
                                 } case 3: {
                                     pRF->PC = pDBus->read()<<8 | pRF->Temp;
-                                    if (trg == 0b010) {/* IME = 1 */ throw std::runtime_error("NI IME"); } //TODO
+                                    if (trg == 0b010) { pRF->IME = true; } //TODO check IME set true
                                     break;
                                 } case 4: {
                                     this->Mc=1;
                                 }
                             }
+                            break;
+                        }
+                        default: {
+                            throw std::runtime_error("OOB execution");
                         }
                     }
                     break;
@@ -93,8 +98,10 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
         } case 0b010: {
             switch (src & 0b100) {
                 case 0b000: { // JP
+                    throw std::runtime_error("NI JP  0b11 010");
                     break;
                 } case 0b100: { // LD/LDH
+                    throw std::runtime_error("NI JP  0b11 010");
                     break;
                 }
             }
@@ -123,6 +130,7 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                             break;
                         }
                     }
+                    break;
                 }
                 case 1: {
                     switch (this->Mc++) {
@@ -134,11 +142,16 @@ void Cpu::ControllUnit::handle0b11(int trg, int src) {
                             break;
                         }
                     }
-                    throw std::runtime_error("NI CB prefix");
+                    break;
                 }
-                case 6:
-                case 7: {
-                    throw std::runtime_error("NI DI/EI");
+                case 6: {
+                    pRF->IME=false;
+                    this->Mc=1;
+                    break;
+                } case 7: {
+                    pRF->IME=true;
+                    this->Mc=1;
+                    break;
                 } 
             }
             break;

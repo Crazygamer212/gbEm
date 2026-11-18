@@ -19,16 +19,18 @@ namespace Memory {
         u_int8_t OAM[0xFEA0-0xFE00];
         u_int8_t IORgs[0xFF80-0xFF00];
         u_int8_t HRAM[0xFFFF-0xFF80];
-        u_int8_t *IEReg; // 0xFFFF-0xFFFE
+        u_int8_t *IEReg; // 0xFFFF
+        u_int8_t *IFReg; // 0xFF0F
 
         Bus::Addr *pABus;
         Bus::Data *pDBus;
         Bus::Ctrl *pCBus;
+        int ramLocked{0}; // if >0 then it is doing. -1 per clock
 
-        u_int8_t RAW[0xffff]; // temporary
+        //u_int8_t RAW[0xffff]; // temporary
 
     public:
-        Memory(Bus::Data *pDBus, Bus::Addr *pABus, Bus::Ctrl *pCBus);
+        Memory(Bus::Data *pDBus, Bus::Addr *pABus, Bus::Ctrl *pCBus, u_int8_t& IE, u_int8_t& IF);
         ~Memory();
 
         void clock();

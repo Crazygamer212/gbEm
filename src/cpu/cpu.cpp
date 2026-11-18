@@ -30,7 +30,7 @@ Cpu::Cpu::Cpu(Bus::Data* pDBus, Bus::Addr* pABus, Bus::Ctrl* pCBus) : pDBus(pDBu
     pIDU = new IDU(pRF, this->pABus, this->pCBus);
     pCU  = new ControllUnit(pRF, this->pABus, this->pDBus, this->pCBus, pALU, pIDU);
 
-    pRF->PC=101;
+    pRF->PC=0x100; // first clock will be depening on DBus initialisation -- should be 0x00
     pABus->write(pRF->PC-1);
     pCBus->setState(Bus::State::read);
 }
@@ -63,3 +63,6 @@ void Cpu::Cpu::clock() {
 int Cpu::Cpu::getOpcode() {
     return pRF->IR;
 }
+
+u_int8_t& Cpu::Cpu::getIE() { return pRF->IE; }
+u_int8_t& Cpu::Cpu::getIF() { return pRF->IF; }

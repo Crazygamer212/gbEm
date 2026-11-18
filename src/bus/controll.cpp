@@ -8,11 +8,13 @@ void Cpu::Bus::Ctrl::clock() {
 }
 
 void Cpu::Bus::Ctrl::setState(Cpu::Bus::State state) {
+#ifndef NDEBUG
     if (this->written_this_clock) {
         throw std::runtime_error("controll bus written to again on same clock");
     }
-    this->state = state;
     this->written_this_clock = true;
+#endif
+    this->state = state;
 }
 
 Cpu::Bus::State Cpu::Bus::Ctrl::getState() {
