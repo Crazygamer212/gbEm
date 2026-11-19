@@ -14,7 +14,7 @@ with open("./Opcodes.json", "r") as f:
 
 exec("opcodes = " + textB.replace("true", "True").replace("false", "False"))
 
-with open("./program.asm", "r") as f:
+with open("./primes.asm", "r") as f:
     asmB = f.read()
 
 def trim(string):
@@ -37,10 +37,16 @@ func = []
 args = []
 gptrs = {}
 offset = 0
+
+#trim comments
 for i,lex in enumerate(lexes):
-    lex = lex.split(";")[0] # strip comments
+    lexes[i] = lex.split(";")[0] # strip comments
+lexes = trim("\n".join(lexes)).split("\n")
+
+#tokenise + numerise jumps
+for i,lex in enumerate(lexes):
     if lex.endswith(":"): 
-        gptrs[lex.replace(":", "")] = offset
+        gptrs[lex[:-1]] = offset
         continue
     if lex.startswith("."):
         gptrs[lex] = offset
@@ -58,7 +64,7 @@ if (DEBUG):
             buf+= "  <<<<   " + list(gptrs.keys())[list(gptrs.values()).index(i)]
         print(buf)
 
-
+#format tokens
 R8s = ["A", "B", "C", "D", "E", "H", "L", "(HL)"]
 R16s = ["AF", "BC", "DE", "HL", "SP"]
 

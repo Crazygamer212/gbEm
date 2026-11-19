@@ -67,20 +67,18 @@ u_int8_t& Memory::Memory::operator[](u_int16_t addr) {
 
 
 void Memory::Memory::clock() {
-    if (ramLocked) {
-        --ramLocked; // copy from $XX00-$XX9F   ;XX = $00 to $DF
-                     // to $FE00-$FE9F
-                     // writing XX to $FF46 starts the transfer
-                     // then divide by $100
-        
-    }
+    // if (ramLocked) {
+    //     --ramLocked; // copy from $XX00-$XX9F   ;XX = $00 to $DF
+    //                  // to $FE00-$FE9F
+    //                  // writing XX to $FF46 starts the transfer
+    //                  // then divide by $100
+    // }
     switch (pCBus->getState()) {
         case Bus::State::read: {
             pDBus->write( (*this)[pABus->read()] );
             break;
         }
         case Bus::State::write: {
-            if (pABus->read() <=)
             (*this)[pABus->read()] = pDBus->read();
             break;
         }

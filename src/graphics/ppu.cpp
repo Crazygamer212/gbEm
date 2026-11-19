@@ -6,14 +6,19 @@
 #include "graphics/screen.h"
 
 
-Graphics::PPU::PPU(u_int8_t vram[], u_int8_t oam[]) : vram(vram), oam(oam),
+Graphics::PPU::PPU(
+    Cpu::Bus::Data &cpuDBus, Cpu::Bus::Addr &cpuABus, Cpu::Bus::Ctrl &cpuCBus,
+    Cpu::Bus::Data &memDBus, Cpu::Bus::Addr &memABus, Cpu::Bus::Ctrl &memCBus
+) : cpuDBus(cpuDBus), cpuABus(cpuABus), cpuCBus(cpuCBus),
+    memDBus(memDBus), memABus(memABus), memCBus(memCBus),
 #ifndef NDEBUG 
     oamScreen(64*8, 12*8, 3, "OAM window"),
 #endif
 screen(160, 144, 3, "main window")
-{
-    
+{ 
+    mode=2;
 }
+
 
 void Graphics::PPU::drawTile(u_int8_t *t_data, int x, int y){
     return this->drawTile(t_data,x,y, screen);
@@ -34,11 +39,28 @@ void Graphics::PPU::drawTile(u_int8_t *t_data, int x, int y, Screen &screen){
 }
 
 
+
+// should be called 4 times per M cycle
+void Graphics::PPU::clock() {
+    // 0 : VRAM, OAM
+    // 1 : VRAM, OAM
+    // 2 : VRAM
+    // 3 : None
+    dot+=1;
+    if (dot>=456) { dot = 0; LY++; }
+    if (dot<=80) { mode = 2; }
+    if (LY==154) { LY = 0; }
+    if (LY>143)  { mode=1; }
+
+    
+}
+
+/*
 void Graphics::PPU::clock() {
 #ifndef NDEBUG 
     for (int i=0; i<64; ++i) {
         for (int j=0; j<12; ++j) {
-            this->drawTile(vram + (j*64 + i)*16, i*8 + 8, j*8 + 16, oamScreen);
+            this->drawTile(VRAM + (j*64 + i)*16, i*8 + 8, j*8 + 16, oamScreen);
         }
     }
     int v = oamScreen.tick(0);
@@ -46,8 +68,10 @@ void Graphics::PPU::clock() {
 #endif
     for (u_int8_t t=0; t<(0xFEF0-0xFE00); t+=4) {
         //oam[t+4] //flags
-        drawTile(vram + (oam[t+2]*16), oam[t+1], oam[t+0]);
+        drawTile(VRAM + (OAM[t+2]*16), OAM[t+1], OAM[t+0]);
     }
     int c = screen.tick(0);
     if (c) { throw std::runtime_error("app_closed");}
 }
+*/
+

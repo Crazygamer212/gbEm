@@ -117,7 +117,8 @@ PUBLIC
 )
 target_link_libraries(ppu 
 PRIVATE 
-    graphics  
+    graphics
+    busses
 )
 
 

@@ -5,10 +5,11 @@ This is a basic gameboy emulator I'm making to learn c++
 
 ## TODO
  - [MBCs](<https://gbdev.io/pandocs/MBCs.html>) 
+ - Another bus for PPU hyjacking
  - modular debug GUI 
  - graphics
  - finish all opcodes
- - add interupt support
+ - ~~add cpu interupt support~~
  - implement a memory system
  - tests for opcodes
  - tests for ppu
@@ -30,10 +31,10 @@ This is a basic gameboy emulator I'm making to learn c++
 
 
 ### To run tests:
-./build/Debug/test
+./test
 
 ### To run emulator:
-./build/Debug/gbEmu <Path/To/Rom>
+./gbEmu <Path/To/Rom>
 
 
 
